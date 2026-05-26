@@ -1,0 +1,668 @@
+{
+          "1": {
+            nivel: "Iniţiere",
+            resursa: "4 Scenarii (Unități de învățare) pe an, 4 Lecţii per scenariu.",
+            scenarii: [
+              {
+                id: "S1",
+                titlu: "Creez un produs digital",
+                nivel: "Iniţiere",
+                cs: ["CS1", "CS3"],
+                uc: ["UC1.1", "UC1.2", "UC3.1"],
+                actiune: "Utilizează instrumente simple prin manipulare ghidată.",
+                produs: "Desen digital",
+                note: "Se pune accent pe coordonarea ochi-mână și familiarizarea cu interfața grafică elementară (Paint sau aplicații online simple).",
+                thread: "creatie",
+                lectii: [
+                  "Primii pași: Echipamentele digitale din jurul meu.",
+                  "Prietenul meu, mouse-ul: Mişcare și clic.",
+                  "Lumea culorilor în programul de desen.",
+                  "Prima mea operă de artă digitală."
+                ]
+              },
+              {
+                id: "S6",
+                titlu: "Mă organizez digital",
+                nivel: "Iniţiere",
+                cs: ["CS1", "CS2"],
+                uc: ["UC1.2", "UC2.1", "UC2.3"],
+                actiune: "Salvează şi deschide fişiere ca rutină de bază.",
+                produs: "Folder personalizat",
+                note: "Elevii învaţă importanța organizării şi persistentei datelor. Se exersează deschiderea și închiderea corectă a aplicațiilor.",
+                thread: "organizare",
+                lectii: [
+                  "Unde se ascunde munca mea? Noţiunea de fişier.",
+                  "Dulapul cu secrete: Folderul.",
+                  "\"Salvarea\" - butonul magic pentru a nu pierde munca.",
+                  "Ordinea în folderul clasei."
+                ]
+              },
+              {
+                id: "S9",
+                titlu: "Siguranţă digitală",
+                nivel: "Iniţiere",
+                cs: ["CS1", "CS2"],
+                uc: ["UC1.3", "UC2.1", "UC2.3"],
+                actiune: "Recunoaște situații sigure și aplică reguli de bază.",
+                produs: "Poster cu reguli de siguranță",
+                note: "Focus pe prevenţie și pe formarea unui comportament responsabil. \"Regula degetului mare\" (discută cu un adult) este centrală.",
+                thread: "siguranta",
+                lectii: [
+                  "Identitatea mea digitală: Cine sunt eu online?",
+                  "Prieteni reali vs. Personaje virtuale.",
+                  "Reguli de aur pentru timpul petrecut la ecran.",
+                  "Cer ajutorul când văd ceva ciudat!"
+                ]
+              },
+              {
+                id: "S4",
+                titlu: "Creez un mesaj",
+                nivel: "Iniţiere",
+                cs: ["CS3"],
+                uc: ["UC3.1", "UC3.2"],
+                actiune: "Transmite un mesaj simplu prin comunicare ghidată.",
+                produs: "Mesaj/Felicitare digitală",
+                note: "Introducerea conceptului de comunicare mediată tehnologic. Se încurajează exprimarea emoțiilor prin emoji și instrumente grafice simple.",
+                thread: "creatie",
+                lectii: [
+                  "Ce este un mesaj digital?",
+                  "Căutăm literele numelui pe tastatură.",
+                  "Spunem \"Salut!\" prin imagini şi simboluri (Emoji).",
+                  "Felicitarea digitală pentru un prieten."
+                ]
+              }
+            ]
+          },
+          "2": {
+            nivel: "Dezvoltare (predominant) / Inițiere (pentru căutare)",
+            resursa: "4 Scenarii pe an, 4 Lecţii per scenariu.",
+            scenarii: [
+              {
+                id: "S1",
+                titlu: "Creez un produs digital",
+                nivel: "Dezvoltare",
+                cs: ["CS1", "CS3"],
+                uc: ["UC1.1", "UC3.1"],
+                actiune: "Creează document simplu; combină text + imagine.",
+                produs: "Document ilustrat",
+                note: "Se folosesc editori de text simplificați. Accentul cade pe relația vizuală dintre mesajul scris și imaginea care îl susţine.",
+                thread: "creatie",
+                lectii: [
+                  "Documentul digital: Textul şi imaginea prieteni.",
+                  "Cum inserăm o imagine într-o pagină.",
+                  "Scriem cuvinte și le schimbăm hainele (formatare text).",
+                  "Povestea mea ilustrată."
+                ]
+              },
+              {
+                id: "S2",
+                titlu: "Caut informaţii",
+                nivel: "Iniţiere",
+                cs: ["CS1"],
+                uc: ["UC1.1", "UC1.2"],
+                actiune: "Caută informații simple; selectare ghidată.",
+                produs: "Colecţie de informaţii",
+                note: "Elevii învață că nu tot ce este pe internet este util. Se exersează \"Copy-Paste\" (doar pentru imagini la acest nivel) utilizând Kiddle sau SafeSearch.",
+                thread: "cautare",
+                lectii: [
+                  "Internetul: O bibliotecă uriaşă.",
+                  "Cuvintele magice pentru căutare (cuvinte-cheie).",
+                  "Alegem pozele şi informaţiile potrivite.",
+                  "Colecţia clasei: \"Curiozităţi despre animale\"."
+                ]
+              },
+              {
+                id: "S4",
+                titlu: "Creez un mesaj",
+                nivel: "Dezvoltare",
+                cs: ["CS3"],
+                uc: ["UC3.1", "UC3.2"],
+                actiune: "Creează poster; exprimare vizuală.",
+                produs: "Poster digital",
+                note: "Se pot folosi aplicații de tip tablă virtuală sau utilitare grafice simple (Canva for Education sau Paint 3D).",
+                thread: "creatie",
+                lectii: [
+                  "Ce este un poster și de ce îl folosim?",
+                  "Culori, forme și mesaje care atrag atenția.",
+                  "Aranjarea elementelor pentru un impact vizual.",
+                  "Posterul meu: \"Să protejăm natura!\"."
+                ]
+              },
+              {
+                id: "S9",
+                titlu: "Siguranţă digitală",
+                nivel: "Dezvoltare",
+                cs: ["CS1"],
+                uc: ["UC1.3"],
+                actiune: "Aplică reguli; aplicare contextuală.",
+                produs: "Ghid de siguranţă",
+                note: "Se utilizează scenarii ipotetice pentru ca elevii să identifice comportamentele corect vs. incorecte.",
+                thread: "siguranta",
+                lectii: [
+                  "Parola: Cheia secretă a lumii mele digitale.",
+                  "Neticheta: Cum vorbim frumos cu ceilalţi online.",
+                  "Timpul la ecran: Când e prea mult?",
+                  "Ghidul de siguranţă al micului explorator digital."
+                ]
+              }
+            ]
+          },
+          "3": {
+            nivel: "Iniţiere / Dezvoltare (conform scenariului)",
+            resursa: "4 Scenarii pe an, 4 Lecţii per scenariu.",
+            scenarii: [
+              {
+                id: "S2",
+                titlu: "Caut informaţii",
+                nivel: "Dezvoltare",
+                cs: ["CS1"],
+                uc: ["UC1.1", "UC1.2"],
+                actiune: "Formulează întrebări; căutare autonomă.",
+                produs: "Mini-raport digital",
+                note: "Elevii trec de la căutarea de imagini la căutarea de răspunsuri la întrebări specifice (\"De ce?\", \"Cum?\"). Navigare autonomă în browser.",
+                thread: "cautare",
+                lectii: [
+                  "Arta de a întreba: Cum formulăm întrebări de căutare.",
+                  "Navigarea autonomă: Utilizarea browserului.",
+                  "Exploratori în biblioteca digitală: Selectarea surselor sigure.",
+                  "Prima mea cercetare online."
+                ]
+              },
+              {
+                id: "S3",
+                titlu: "Colaborez",
+                nivel: "Iniţiere",
+                cs: ["CS3"],
+                uc: ["UC3.2"],
+                actiune: "Lucrează în echipă; colaborare asistată.",
+                produs: "Document/Prezentare comună",
+                note: "Se introduce conceptul de \"lucru în timp real\". Învățătorul monitorizează interacțiunile pentru a asigura un climat pozitiv.",
+                thread: "colaborare",
+                lectii: [
+                  "Ce înseamnă să lucrăm împreună online?",
+                  "Spaţiul comun de lucru (Documente partajate).",
+                  "Scriem şi desenăm în echipă: Regulile grupului.",
+                  "Proiectul nostru colectiv: \"Enciclopedia clasei\"."
+                ]
+              },
+              {
+                id: "S5",
+                titlu: "Gândesc logic și secvenţial",
+                nivel: "Iniţiere",
+                cs: ["CS2", "CS3"],
+                uc: ["UC2.1", "UC2.2", "UC3.3"],
+                actiune: "Structurare logică",
+                produs: "Algoritm ilustrat / ghid procedural",
+                note: "Scenariu prerechizit pentru Informatică; dezvoltă logică secvenţială fără programare explicită.",
+                thread: "algoritmi",
+                lectii: [
+                  "Ordinea acţiunilor şi instrucţiunile pas cu pas.",
+                  "Secvențe și algoritmi din viața cotidiană.",
+                  "Identificarea și corectarea erorilor într-o secvență.",
+                  "Crearea unei instrucţiuni / proceduri logice."
+                ]
+              },
+              {
+                id: "S8",
+                titlu: "Verific informaţii",
+                nivel: "Iniţiere",
+                cs: ["CS1"],
+                uc: ["UC1.1", "UC1.3"],
+                actiune: "Compară informaţii; evaluare de bază.",
+                produs: "Fişă de analiză/Checklist",
+                note: "Dezvoltarea spiritului critic timpuriu. Elevii învaţă să nu accepte prima informaţie găsită fără o minimă verificare.",
+                thread: "siguranta",
+                lectii: [
+                  "Detectivul de adevăr: Este totul real pe internet?",
+                  "Comparaţia surselor: Două site-uri, aceeaşi poveste?",
+                  "Elemente de bază: Cine a scris? Când a scris?",
+                  "Jurnalul verificării: \"Am aflat că e adevărat pentru că...\"."
+                ]
+              }
+            ]
+          },
+          "4": {
+            nivel: "Consolidare / Dezvoltare / Inițiere (pentru teme noi)",
+            resursa: "4 Scenarii pe an, 4 Lecţii per scenariu.",
+            scenarii: [
+              {
+                id: "S1",
+                titlu: "Creez un produs digital",
+                nivel: "Consolidare",
+                cs: ["CS1", "CS3"],
+                uc: ["UC1.1", "UC1.2", "UC3.1"],
+                actiune: "Rafinează și personalizează produse complexe.",
+                produs: "Proiect multimedia interactiv",
+                note: "Elevii nu mai fac doar simple slide-uri, ci creează un flux informaţional coerent, integrând sunet, video și hiperlink-uri.",
+                thread: "creatie",
+                lectii: [
+                  "Arhitectura unei prezentări multimedia.",
+                  "Integrarea sunetului și a elementelor video.",
+                  "Interactivitate: Butoane și hiperlink-uri.",
+                  "Design și estetică în produsul digital final."
+                ]
+              },
+              {
+                id: "S3",
+                titlu: "Colaborez",
+                nivel: "Dezvoltare",
+                cs: ["CS3"],
+                uc: ["UC3.2"],
+                actiune: "Coordonează și contribuie în spații partajate.",
+                produs: "Revistă digitală a clasei",
+                note: "Se pune accent pe abilităţile soft: cum oferim feedback constructiv în timp real fără a jigni și cum acceptăm modificările.",
+                thread: "colaborare",
+                lectii: [
+                  "Roluri în echipa digitală (Lider, Editor, Cercetător).",
+                  "Partajarea și gestionarea drepturilor de acces.",
+                  "Comentarii şi feedback constructiv în timp real.",
+                  "Finalizarea şi publicarea lucrării colective."
+                ]
+              },
+              {
+                id: "S7",
+                titlu: "Folosesc AI",
+                nivel: "Iniţiere",
+                cs: ["CS1"],
+                uc: ["UC1.1", "UC1.2", "UC1.3"],
+                actiune: "Utilizează critic instrumente de tip IA.",
+                produs: "Galerie de imagini/poveşti generate cu IA",
+                note: "Elevii învață noţiunea de \"prompt\" (comandă) și importanța verificării rezultatului produs de un algoritm.",
+                thread: "algoritmi",
+                lectii: [
+                  "Ce este și ce nu este IA? (Exemple din viaţa de zi cu zi).",
+                  "Interacțiunea cu asistenţii virtuali prin prompt-uri.",
+                  "Generarea creativă: De la idei la imagini/text.",
+                  "Siguranţă și etică: De ce nu trebuie să credem tot ce spune IA?"
+                ]
+              },
+              {
+                id: "S10",
+                titlu: "Proiect comunitar",
+                nivel: "Iniţiere",
+                cs: ["CS2", "CS3"],
+                uc: ["UC2.1", "UC2.2", "UC2.4", "UC3.1", "UC3.3"],
+                actiune: "Planificare și aplicare",
+                produs: "Soluţie / campanie digitală pentru comunitate",
+                note: "Include explicit logică procedurală și planificare secvenţială ca prerechizit pentru Informatică.",
+                thread: "colaborare",
+                lectii: [
+                  "Identificarea unei probleme simple din comunitate / școală.",
+                  "Planificarea soluției și secvențierea paşilor de implementare.",
+                  "Realizarea produsului / soluției digitale.",
+                  "Prezentarea soluției și reflecție asupra impactului."
+                ]
+              }
+            ]
+          },
+          "5": {
+            nivel: "Dezvoltare / Inițiere (pentru competențe complexe)",
+            resursa: "4 Scenarii pe an, 4 Lecţii per scenariu.",
+            scenarii: [
+              {
+                id: "S2",
+                titlu: "Caut informaţii",
+                nivel: "Dezvoltare",
+                cs: ["CS1"],
+                uc: ["UC1.1", "UC1.2", "UC1.3"],
+                actiune: "Analizează surse şi evaluează critic conţinutul.",
+                produs: "Raport de cercetare documentat",
+                note: "Se trece de la simpla căutare la cercetarea etică. Elevii învaţă să utilizeze bibliografii digitale simple și să citeze sursele.",
+                thread: "cautare",
+                lectii: [
+                  "Navigarea inteligentă: Motoare de căutare vs. Baze de date.",
+                  "Tehnici avansate de filtrare a informației.",
+                  "Drepturile de autor: Citarea surselor digitale.",
+                  "Evaluarea credibilităţii: Ştiri false vs. Fapte."
+                ]
+              },
+              {
+                id: "S3",
+                titlu: "Colaborez",
+                nivel: "Dezvoltare",
+                cs: ["CS2", "CS3"],
+                uc: ["UC2.1", "UC2.2", "UC2.3", "UC3.3"],
+                actiune: "Creează produse comune prin coordonare digitală.",
+                produs: "Prezentare colaborativă pe o temă de mediu",
+                note: "Accentul cade pe managementul proiectului în grup şi pe utilizarea responsabilă a spațiului de stocare \"Cloud\".",
+                thread: "colaborare",
+                lectii: [
+                  "Ecosisteme digitale de colaborare (Cloud storage).",
+                  "Editarea simultană: Fluxul de lucru în echipă.",
+                  "Comunicarea asincronă: Comentarii şi sugestii.",
+                  "Securitatea conturilor partajate."
+                ]
+              },
+              {
+                id: "S5",
+                titlu: "Produc conţinut video digital",
+                nivel: "Dezvoltare",
+                cs: ["CS2", "CS3"],
+                uc: ["UC2.1", "UC2.2", "UC2.3", "UC3.1", "UC3.3"],
+                actiune: "Producţie multimedia",
+                produs: "Video digital scurt",
+                note: "Introducere timpurie în video production; bază pentru storytelling digital ulterior în gimnaziu.",
+                thread: "creatie",
+                lectii: [
+                  "Tipuri de conţinut și structura video narativă.",
+                  "Planificarea storyboard-ului şi scenariului video.",
+                  "Captură și editare video de bază.",
+                  "Export, publicare şi reflecție asupra produsului."
+                ]
+              },
+              {
+                id: "S10",
+                titlu: "Proiect comunitar",
+                nivel: "Iniţiere",
+                cs: ["CS2", "CS3"],
+                uc: ["UC2.1", "UC2.2", "UC2.3", "UC3.1", "UC3.2", "UC3.3"],
+                actiune: "Creează un proiect simplu cu aplicare practică.",
+                produs: "Mini-proiect de impact social",
+                note: "Scenariu integrator. Tehnologia este pusă în serviciul comunităţii, dezvoltând spiritul antreprenorial și civic.",
+                thread: "colaborare",
+                lectii: [
+                  "Identificarea unei nevoi în școală (ex: reciclarea).",
+                  "Planificarea digitală a soluţiei: Etape și resurse.",
+                  "Realizarea prototipului digital (site simplu, video sau aplicaţie).",
+                  "Prezentarea şi promovarea proiectului în comunitate."
+                ]
+              }
+            ]
+          },
+          "6": {
+            nivel: "Consolidare / Dezvoltare",
+            resursa: "4 Scenarii pe an, 4 Lecţii per scenariu.",
+            scenarii: [
+              {
+                id: "S2",
+                titlu: "Caut informaţii",
+                nivel: "Consolidare",
+                cs: ["CS1"],
+                uc: ["UC1.1", "UC1.2", "UC1.3"],
+                actiune: "Analizează surse şi realizează evaluarea critică.",
+                produs: "Raport de cercetare documentat",
+                note: "Se pune accent pe transformarea informaţiei brute în cunoaştere prin sintetizare și citare etică cu evitarea plagiatului.",
+                thread: "cautare",
+                lectii: [
+                  "Strategii de căutare: Operatori logici (AND, OR, NOT).",
+                  "Navigarea în baze de date academice şi biblioteci digitale.",
+                  "Etica informaţiei: Citarea corectă și evitarea plagiatului.",
+                  "Sinteza informaţiilor din surse multiple."
+                ]
+              },
+              {
+                id: "S3",
+                titlu: "Colaborez",
+                nivel: "Consolidare",
+                cs: ["CS3"],
+                uc: ["UC3.2"],
+                actiune: "Creează produse comune prin coordonarea echipei.",
+                produs: "Prezentare colaborativă multimedia",
+                note: "Elevii sunt responsabili de întregul ciclu de viață al unui proiect de grup, inclusiv istoricul versiunilor și rezolvarea conflictelor tehnice.",
+                thread: "colaborare",
+                lectii: [
+                  "Managementul proiectelor în echipă: Roluri și responsabilități.",
+                  "Fluxul de lucru colaborativ: Istoricul versiunilor și recuperarea datelor.",
+                  "Rezolvarea conflictelor tehnice şi editoriale în documente partajate.",
+                  "Finalizarea și prezentarea sincronă a proiectului."
+                ]
+              },
+              {
+                id: "S8",
+                titlu: "Verific informaţii",
+                nivel: "Consolidare",
+                cs: ["CS1"],
+                uc: ["UC1.1", "UC1.2", "UC1.3"],
+                actiune: "Realizează analiza critică a conţinutului media.",
+                produs: "Dosar de analiză media (Fact-check)",
+                note: "Elevii devin \"detectivi digitali\", învăţând să identifice mecanismele de dezinformare moderne, bias-ul mediatic și manipularea prin Deepfake.",
+                thread: "siguranta",
+                lectii: [
+                  "Anatomia unei știri: Fapte vs. Opinii.",
+                  "Bias-ul mediatic: Cum ne influențează algoritmii opinia.",
+                  "Tehnici de fact-checking: Căutarea inversă de imagini şi verificarea sursei.",
+                  "Deepfake şi conținutul manipulat: Semne de avertizare."
+                ]
+              },
+              {
+                id: "S6",
+                titlu: "Mă organizez digital",
+                nivel: "Dezvoltare",
+                cs: ["CS1", "CS2"],
+                uc: ["UC1.2", "UC1.3", "UC2.2"],
+                actiune: "Gestionează resurse pentru eficienţă digitală.",
+                produs: "Sistem de organizare a portofoliului digital",
+                note: "Management strategic al resurselor și al identității digitale. Regula de backup 3-2-1 și automatizarea sarcinilor simple.",
+                thread: "organizare",
+                lectii: [
+                  "Sisteme de fişiere avansate: Etichetare (tagging) și indexare.",
+                  "Strategii de backup: Regula 3-2-1 pentru siguranţa datelor.",
+                  "Gestionarea amprentei digitale: Setări de confidenţialitate.",
+                  "Automatizarea sarcinilor simple: Calendare și memento-uri inteligente."
+                ]
+              }
+            ]
+          },
+          "7": {
+            nivel: "Avansat / Dezvoltare",
+            resursa: "4 Scenarii pe an, 4 Lecţii per scenariu.",
+            scenarii: [
+              {
+                id: "S4",
+                titlu: "Creez campanii media persuasive",
+                nivel: "Avansat",
+                cs: ["CS2", "CS3"],
+                uc: ["UC2.1", "UC2.2", "UC3.1", "UC3.2", "UC3.3"],
+                actiune: "Proiectare strategică de comunicare",
+                produs: "Campanie media digitală",
+                note: "Repoziționează scenariul spre comunicare strategică și persuasiune digitală. Elimină suprapunerea cu producția video simplă.",
+                thread: "creatie",
+                lectii: [
+                  "Principiile persuasiunii în comunicarea digitală și publicul-ţintă.",
+                  "Analiza campaniilor media: structură, mesaj, branding și impact vizual.",
+                  "Proiectarea unei campanii media digitale (vizual + text + call-to-action).",
+                  "Publicarea, prezentarea şi evaluarea impactului mesajului persuasiv."
+                ]
+              },
+              {
+                id: "S5",
+                titlu: "Produc conţinut video digital",
+                nivel: "Avansat",
+                cs: ["CS2", "CS3"],
+                uc: ["UC2.1", "UC2.2", "UC2.3", "UC3.1", "UC3.3"],
+                actiune: "Producţie multimedia avansată",
+                produs: "Material video editat complet",
+                note: "Consolidarea și aprofundarea competențelor de producție video: limbaj cinematografic, compoziție vizuală, editare și post-producție.",
+                thread: "creatie",
+                lectii: [
+                  "Limbaj cinematografic și tehnici de filmare.",
+                  "Captură video avansată și compoziție vizuală.",
+                  "Editare video și post-producţie (tranzitii, efecte, audio).",
+                  "Publicare și analiză critică a produsului video."
+                ]
+              },
+              {
+                id: "S7",
+                titlu: "Folosesc AI",
+                nivel: "Dezvoltare",
+                cs: ["CS1"],
+                uc: ["UC1.1", "UC1.2", "UC1.3"],
+                actiune: "Generează conţinut prin prompt-uri; validează output-ul.",
+                produs: "Produs digital asistat de IA (validat şi corectat)",
+                note: "Elevii nu preiau \"ca atare\" rezultatul IA, ci îl supun unui proces de critică, rafinare (Prompt Engineering) și ajustare manuală.",
+                thread: "algoritmi",
+                lectii: [
+                  "Ingineria prompt-urilor (Prompt Engineering): Tehnici de rafinare.",
+                  "Colaborarea om-IA în procesul creativ.",
+                  "Detectarea bias-ului și a limitelor modelelor lingvistice.",
+                  "Validarea rezultatelor AI: Triangularea informației."
+                ]
+              },
+              {
+                id: "S8",
+                titlu: "Verific informaţii",
+                nivel: "Avansat",
+                cs: ["CS1"],
+                uc: ["UC1.1", "UC1.2", "UC1.3"],
+                actiune: "Analizează media; detectează tentative de manipulare.",
+                produs: "Analiză critică de caz (Dosar Fake News)",
+                note: "Elevii devin analiști media capabili să demonteze știri false complexe, analizând metadatele, amprentele digitale și conținutul synthetic Deepfake.",
+                thread: "siguranta",
+                lectii: [
+                  "Fenomenul Fake News: Manipulare psihologică și algoritmică.",
+                  "Verificarea avansată: Analiza metadatelor şi a amprentei digitale.",
+                  "Recunoaşterea conținutului sintetic (Deepfake).",
+                  "Raportul de integritate: Documentarea adevărului online."
+                ]
+              }
+            ]
+          },
+          "8": {
+            nivel: "Avansat / Consolidare / Dezvoltare",
+            resursa: "4 Scenarii pe an, 4 Lecţii per scenariu.",
+            scenarii: [
+              {
+                id: "S5",
+                titlu: "Editez şi optimizez imagini digitale",
+                nivel: "Consolidare",
+                cs: ["CS2", "CS3"],
+                uc: ["UC2.1", "UC2.2", "UC2.3", "UC3.1", "UC3.3"],
+                actiune: "Prelucrare și optimizare vizuală",
+                produs: "Portofoliu de imagini editate / material vizual optimizat",
+                note: "Acoperă integral manipularea imaginilor pe straturi, decupaje complexe, corecție de culoare/lumină și optimizări pentru print, web și social media.",
+                thread: "creatie",
+                lectii: [
+                  "Principii de compoziție vizuală și estetică digitală.",
+                  "Tehnici de editare imagine: crop, resize, corecție culoare/lumină.",
+                  "Manipulare și compoziție avansată: straturi, decupare, integrare elemente.",
+                  "Optimizarea imaginilor pentru contexte diferite (print, web, social media)."
+                ]
+              },
+              {
+                id: "S7",
+                titlu: "Folosesc AI",
+                nivel: "Avansat",
+                cs: ["CS1"],
+                uc: ["UC1.1", "UC1.2", "UC1.3"],
+                actiune: "Utilizează AI critic; evaluare output.",
+                produs: "Produs AI complex (Prototip/Aplicație)",
+                note: "Se trece la nivel de expertiză: cum învață mașinile, crearea de conținut complex multimodal (text-video-audio) și auditul etic al soluțiilor (bias, copyright).",
+                thread: "algoritmi",
+                lectii: [
+                  "Arhitecturi AI: Cum învață maşinile (prezentare generală).",
+                  "Crearea de conţinut complex prin integrare multimodală (text-video-audio).",
+                  "Auditul etic al soluțiilor AI: Bias, copyright şi responsabilitate.",
+                  "Evaluarea critică a output-ului: Ajustarea erorilor algoritmice."
+                ]
+              },
+              {
+                id: "S8",
+                titlu: "Verific informaţii",
+                nivel: "Avansat",
+                cs: ["CS1"],
+                uc: ["UC1.1", "UC1.2", "UC1.3"],
+                actiune: "Validează informaţii; triangulare surse.",
+                produs: "Raport critic de integritate informaţională",
+                note: "Elevii analizează campanii de dezinformare la scară largă, înțelegând algoritmii de recomandare și bulele de filtrare prin tehnici de investigație jurnalistică.",
+                thread: "siguranta",
+                lectii: [
+                  "Triangularea surselor: Tehnici de investigaţie jurnalistică.",
+                  "Verificarea datelor statistice și a graficelor manipulate.",
+                  "Analiza algoritmilor de recomandare și a bulelor de filtrare.",
+                  "Raportul de integritate: Deconstrucția unei campanii de dezinformare."
+                ]
+              },
+              {
+                id: "S10",
+                titlu: "Proiect comunitar",
+                nivel: "Dezvoltare",
+                cs: ["CS2", "CS3"],
+                uc: ["UC2.1", "UC2.2", "UC2.3", "UC3.1", "UC3.2", "UC3.3"],
+                actiune: "Creează proiect cu impact social.",
+                produs: "Proiect digital comunitar implementat",
+                note: "Proiectul trebuie să aibă o finalitate practică: o aplicație de reciclare, un site pentru un adăpost local sau o campanie de digital literacy.",
+                thread: "colaborare",
+                lectii: [
+                  "Analiza nevoilor sociale prin instrumente digitale (sondaje, data mining).",
+                  "Designul soluţiei: Prototiparea rapidă (UI/UX).",
+                  "Implementarea și testarea cu utilizatori reali.",
+                  "Pitch-ul proiectului: Comunicarea impactului social."
+                ]
+              }
+            ]
+          },
+          "9": {
+            nivel: "Expert (școlar) / Avansat",
+            resursa: "4 Scenarii pe an, 4 Lecţii per scenariu.",
+            scenarii: [
+              {
+                id: "S2",
+                titlu: "Caut informații",
+                nivel: "Avansat",
+                cs: ["CS1"],
+                uc: ["UC1.1", "UC1.2", "UC1.3"],
+                actiune: "Realizează cercetare și integrare surse.",
+                produs: "Lucrare digitală de cercetare",
+                note: "Pregătește elevul pentru rigoarea academică: surse primare/secundare, baze de date globale, etică academică și management bibliografic (Zotero, Mendeley).",
+                thread: "cautare",
+                lectii: [
+                  "Metodologia cercetării digitale: Surse primare și secundare.",
+                  "Sinteza datelor complexe din baze de date globale.",
+                  "Etica academică și managementul bibliografiei digitale.",
+                  "Redactarea lucrărilor digitale de complexitate ridicată."
+                ]
+              },
+              {
+                id: "S7",
+                titlu: "Utilizez AI pentru creație și cercetare",
+                nivel: "Expert",
+                cs: ["CS1", "CS3"],
+                uc: ["UC1.1", "UC1.2", "UC1.3", "UC3.1", "UC3.3"],
+                actiune: "Integrare critică AI",
+                produs: "Produs complex asistat de AI digital",
+                note: "Utilizare avansată și critică a IA ca partener creativ și de cercetare. Se face auditul etic și validarea critică a output-ului în procese complexe.",
+                thread: "algoritmi",
+                lectii: [
+                  "Strategii avansate de prompting pentru cercetare și creație multimodală.",
+                  "Utilizarea AI pentru generarea şi rafinarea conținutului academic și creativ.",
+                  "Validarea critică, auditul etic și verificarea output-ului AI.",
+                  "Integrarea responsabilă a AI în procese de lucru complexe și prezentarea rezultatelor."
+                ]
+              },
+              {
+                id: "S5",
+                titlu: "Automatizez şi optimizez fluxuri digitale",
+                nivel: "Avansat",
+                cs: ["CS1", "CS2", "CS3"],
+                uc: ["UC1.2", "UC1.3", "UC2.2", "UC2.4", "UC3.1", "UC3.3"],
+                actiune: "Optimizare și automatizare",
+                produs: "Flux digital automatizat/sistem de productivitate",
+                note: "Orientat spre competențe reale de productivitate profesională. Automatizarea sarcinilor repetitive prin unelte digitale și agenți IA.",
+                thread: "organizare",
+                lectii: [
+                  "Identificarea sarcinilor repetitive și a fluxurilor digitale.",
+                  "Utilizarea instrumentelor de automatizare și AI pentru productivitate.",
+                  "Proiectarea unui flux digital optimizat.",
+                  "Evaluarea eficienţei şi impactului automatizării."
+                ]
+              },
+              {
+                id: "S10",
+                titlu: "Proiect comunitar",
+                nivel: "Avansat",
+                cs: ["CS2", "CS3"],
+                uc: ["UC2.1", "UC2.2", "UC2.3", "UC3.1", "UC3.2", "UC3.3"],
+                actiune: "Dezvoltă proiect complet cu impact real.",
+                produs: "Proiect final de impact comunitar (Lucrare de Absolvire)",
+                note: "Lucrarea de absolvire a ciclului gimnazial. Soluție durabilă cu beneficiari reali, indicatori de performanță și plan de sustenabilitate.",
+                thread: "colaborare",
+                lectii: [
+                  "Antreprenoriat social digital: De la idee la implementare.",
+                  "Gestionarea resurselor și a echipei în proiecte de impact.",
+                  "Comunicarea strategică și promovarea proiectului în spațiul public.",
+                  "Sustenabilitatea proiectului digital: Cum continuă după noi?"
+                ]
+              }
+            ]
+          }
+        };
