@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Curriculum Dashboard - Educație Digitală</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body class="bg-gray-50 font-sans text-gray-800">
+
+    <header class="bg-indigo-900 text-white shadow-md p-4 flex justify-between items-center sticky top-0 z-50">
+        <div class="flex items-center space-x-3">
+            <span class="material-icons text-3xl text-indigo-300">dashboard</span>
+            <div>
+                <h1 class="text-xl font-bold tracking-tight">Curriculum Smart Manager</h1>
+                <p class="text-xs text-indigo-200">Aria curriculară: Tehnologii | Educație Digitală (Clasele I-IX)</p>
+            </div>
+        </div>
+        <div class="flex space-x-2">
+            <button onclick="exportCurriculum()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center transition">
+                <span class="material-icons mr-1 text-sm">download</span> Export JSON
+            </button>
+            <button onclick="importCurriculum()" class="bg-indigo-700 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center transition">
+                <span class="material-icons mr-1 text-sm">upload</span> Import
+            </button>
+        </div>
+    </header>
+
+    <div class="flex min-h-screen">
+        <aside class="w-64 bg-white border-r border-gray-200 p-4 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto">
+            <h2 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Niveluri de învățământ</h2>
+            <nav id="class-tabs" class="space-y-1">
+                </nav>
+        </aside>
+
+        <main class="flex-1 p-6 lg:p-8 overflow-y-auto">
+            <div id="class-meta" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-6 transition-all">
+                </div>
+
+            <div class="mb-4 flex justify-between items-center">
+                <h3 class="text-lg font-bold text-gray-900">Scenarii de Învățare</h3>
+                <button onclick="addNewScenario()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center transition">
+                    <span class="material-icons mr-1 text-sm">add</span> Adaugă Scenariu
+                </button>
+            </div>
+            
+            <div id="scenarios-container" class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                </div>
+        </main>
+    </div>
+
+    <div id="editor-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 transition-all transform scale-95 opacity-0 duration-200" id="modal-content">
+            </div>
+    </div>
+
+</body>
+</html>
