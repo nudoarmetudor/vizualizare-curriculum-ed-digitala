@@ -178,7 +178,7 @@ td.code{font-family:ui-monospace,monospace;font-size:11px;white-space:nowrap}
 <div id="overlay"></div>
 <aside id="panel"></aside>
 
-<script src="data.js?v=3"></script>
+<script src="data.js?v=4"></script>
 <script>
 const ROMAN={1:'I',2:'II',3:'III',4:'IV',5:'V',6:'VI',7:'VII',8:'VIII',9:'IX'};
 const C=CURRICULUM, UCOMP=C.ucomp, UCON=C.ucon;
@@ -343,7 +343,6 @@ function chipset(arr,cls){if(!arr||!arr.length)return '<span class="hint">—</s
 function openPanel(cod){
   const l=luById[cod]; if(!l)return;
   const p=document.getElementById('panel');
-  const derived = l.comp==='D' || (l.comp==='T'&&l.clasa>=5);
   // UC column
   const ucHtml=l.ucomp.map(x=>{const d=UCOMP[x];return `<div class="ucomp-row"><span class="ucomp-chip" title="${esc(ucompTitle(x))}">${x}</span><div class="hint" style="margin:2px 0 8px">${esc(d?d.desc:'')}</div></div>`}).join('')||'—';
   // Content column (structured per Sablon)
@@ -365,7 +364,7 @@ function openPanel(cod){
      <div class="hint">${l.comp==='T'?'Modul opțional '+l.ord:'Scenariu '+l.ord} · ${l.ucon.length} lecții · ${l.ucomp.length} unități de competență</div>
    </div>
    <div class="p-body">
-     ${l.valori&&l.valori.length?`<div class="sec"><h3>Valori promovate${derived?' <span class="derived">(derivat din conținut + CRCN)</span>':''}</h3>${chipset(l.valori,'valori')}</div>`:''}
+     ${l.valori&&l.valori.length?`<div class="sec"><h3>Valori promovate</h3>${chipset(l.valori,'valori')}</div>`:''}
      <div class="sec"><h3>Unități de competență</h3>${ucHtml}</div>
      <div class="sec"><h3>Unități de conținut (lecții)</h3>${uconList||'—'}<div class="hint" style="margin-top:6px">Fiecare lecție arată competențele pe care le dezvoltă (tag-uri). Hover = descriere.</div></div>
      ${cont}
