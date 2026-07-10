@@ -58,6 +58,7 @@ main{padding:16px}
 /* GRAPH (Arbore) */
 .graph-tools{display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap}
 .graph-tools button{border:1px solid var(--border);background:#fff;border-radius:6px;min-width:30px;height:28px;cursor:pointer;font-size:14px;padding:0 8px}
+.graph-tools button.on{background:var(--text);color:#fff;border-color:var(--text);font-size:12px;font-weight:600}
 .glegend{display:flex;gap:10px;align-items:center;font-size:11px;color:var(--muted);margin-left:6px;flex-wrap:wrap}
 .glegend span{display:inline-flex;align-items:center;gap:4px}
 .sq{width:11px;height:11px;border-radius:3px;display:inline-block}
@@ -178,7 +179,7 @@ td.code{font-family:ui-monospace,monospace;font-size:11px;white-space:nowrap}
 <div id="overlay"></div>
 <aside id="panel"></aside>
 
-<script src="data.js?v=4"></script>
+<script src="data.js?v=10"></script>
 <script>
 const ROMAN={1:'I',2:'II',3:'III',4:'IV',5:'V',6:'VI',7:'VII',8:'VIII',9:'IX'};
 const C=CURRICULUM, UCOMP=C.ucomp, UCON=C.ucon;
@@ -237,8 +238,6 @@ function luCard(l){
 /* ---------- GRAPH (Arbore node-link) ---------- */
 const CSCOL={'1':'#16a34a','2':'#2563eb','3':'#ea580c','4':'#7c3aed'};
 function csColor(n){return CSCOL[String(n)]||'#64748b'}
-function csOf(u){return u.split('.')[1]}
-function dominantCS(l){const c={};l.ucomp.forEach(u=>{const k=csOf(u);c[k]=(c[k]||0)+1});let b='1',m=0;for(const k in c)if(c[k]>m){m=c[k];b=k}return b}
 let GW=2800, GH=860, gscale=1;
 function gedge(a,b,col,op,from,to){const my=((a.y+b.y)/2).toFixed(1);
   return `<path class="edge" data-a="${from}" data-b="${to}" data-op="${op}" d="M${a.x.toFixed(1)},${a.y} C${a.x.toFixed(1)},${my} ${b.x.toFixed(1)},${my} ${b.x.toFixed(1)},${b.y}" stroke="${col}" stroke-width="1" fill="none" opacity="${op}"/>`}
@@ -248,39 +247,79 @@ function gbox(cx,cy,w,h,id,label,fill,stroke,tcol,fs,tip,lu){
     `<rect width="${w}" height="${h}" rx="5" fill="${fill}" stroke="${stroke}" stroke-width="${lu?2:1.5}"/>`+
     `<text x="${w/2}" y="${(h/2+3.5).toFixed(1)}" text-anchor="middle" font-size="${fs}" font-weight="${lu?600:700}" fill="${tcol}">${label}</text></g>`;
 }
+// Ramurile de competență (CS + subramură sub) — aceeași grupare ca la Progresie/Competențe,
+// ~21 ramuri agregate pe toți cei 9 ani, în loc de 69 de casete UComp risipite.
+function competenceBranches(){
+  const g={};
+  Object.values(UCOMP).forEach(u=>{const pp=u.cod.split('.');const y=pp[1],z=pp[2],w=+pp[3];
+    const key=y+'|'+z;(g[key]=g[key]||{cs:y,z:z,nodes:[]}).nodes.push({clasa:w,cod:u.cod,desc:u.desc})});
+  const arr=Object.values(g);
+  arr.forEach(b=>b.nodes.sort((a,b2)=>a.clasa-b2.clasa));
+  arr.sort((a,b)=>a.cs.localeCompare(b.cs)||a.z.localeCompare(b.z,undefined,{numeric:true}));
+  return arr;
+}
+let graphSpine='aggregated'; // 'aggregated' (o casetă/ramură) | 'expanded' (+ indicator vizual pe ani)
+function setGraphSpine(m){graphSpine=m;renderGraph();}
+function luBoxHtml(l,cx,cy,w,h){
+  const x=(cx-w/2).toFixed(1),y=(cy-h/2).toFixed(1),col=l.comp==='T'?'#f59e0b':'#3b82f6';
+  const t=l.title.length>27?l.title.slice(0,27)+'…':l.title;
+  return `<g class="gnode lu" data-id="${l.cod}" transform="translate(${x},${y})"><title>${esc(l.cod+' — '+l.title)}</title>
+    <rect width="${w}" height="${h}" rx="6" fill="#fff" stroke="${col}" stroke-width="2"/>
+    <text x="8" y="15" font-size="9" font-weight="700" fill="${col}" font-family="ui-monospace,Consolas,monospace">${esc(l.cod)}</text>
+    <text x="8" y="28" font-size="8.3" fill="#334155">${esc(t)}</text>
+    <text x="8" y="${h-8}" font-size="7.3" fill="#94a3b8">${l.ucon.length} lecții · ${l.ucomp.length} UComp</text></g>`;
+}
 function renderGraph(){
   const lus=filtered();
   const el=document.getElementById('tree'); el.innerHTML='';
   if(!lus.length){el.innerHTML='<p class="meta">Niciun rezultat.</p>';return}
-  const CS_Y=46, UC_Y=140, BAND_TOP=232, BAND_H=64;
-  GH=BAND_TOP+9*BAND_H+24;
-  const csList=C.cs.map(c=>c.cod), nCS=csList.length, segW=GW/nCS, pos={};
-  csList.forEach((cod,i)=>pos[cod]={x:segW*(i+0.5),y:CS_Y});
-  // UComp grupate sub CS
-  const ucBy={}; Object.values(UCOMP).forEach(u=>(ucBy[u.cs]=ucBy[u.cs]||[]).push(u.cod));
-  Object.keys(ucBy).forEach(cs=>{const arr=ucBy[cs].sort();const i=csList.indexOf('CS.'+cs);const x0=segW*i+24,x1=segW*(i+1)-24;
-    arr.forEach((cod,k)=>pos[cod]={x:x0+(x1-x0)*(arr.length<2?0.5:k/(arr.length-1)),y:UC_Y})});
-  // LU pe (CS dominant, clasă)
-  const byCol={}; lus.forEach(l=>{const cs=dominantCS(l);(byCol[cs+'_'+l.clasa]=byCol[cs+'_'+l.clasa]||[]).push(l)});
-  Object.keys(byCol).forEach(key=>{const [cs,cls]=key.split('_');const i=csList.indexOf('CS.'+cs);const x0=segW*i+34,x1=segW*(i+1)-34;
-    const arr=byCol[key].sort((a,b)=>a.comp.localeCompare(b.comp));const y=BAND_TOP+(cls-1)*BAND_H;
-    arr.forEach((l,k)=>pos[l.cod]={x:x0+(x1-x0)*(arr.length<2?0.5:k/(arr.length-1)),y:y})});
-  // benzi de clasă
-  let bands='';
-  for(let c=1;c<=9;c++){const y=BAND_TOP+(c-1)*BAND_H;bands+=`<rect x="0" y="${y-26}" width="${GW}" height="${BAND_H}" fill="${c%2?'#ffffff':'#f6f8fb'}"/><text x="8" y="${y-10}" class="band-lbl">Clasa ${ROMAN[c]}</text>`}
-  // muchii
+  const expanded=graphSpine==='expanded';
+  const branches=competenceBranches();
+  const branchKey=b=>b.cs+'|'+b.z, branchId=b=>'BR.'+b.cs+'.'+b.z;
+  // --- coloana-șira din stânga: ramurile de competență, câte o casetă/ramură ---
+  const SPINE_W=expanded?300:236, ROWH=expanded?48:32, SPINE_TOP=54;
+  const bY={}; branches.forEach((b,i)=>bY[branchKey(b)]=SPINE_TOP+i*ROWH+ROWH/2);
+  const spineH=SPINE_TOP+branches.length*ROWH+20;
+  // --- coloane pe clasă (I-IX), LU stivuite vertical în fiecare, ca la Timeline ---
+  const COLW=182, CARD_W=160, CARD_H=58, CARD_GAP=8, GRID_X0=SPINE_W+30, COL_TOP=54;
+  const byClass={}; for(let c=1;c<=9;c++)byClass[c]=lus.filter(l=>l.clasa===c)
+    .sort((a,b)=>a.comp.localeCompare(b.comp)||String(a.ord).localeCompare(String(b.ord),undefined,{numeric:true}));
+  const colX=c=>GRID_X0+(c-1)*COLW;
+  const pos={}; let maxColBottom=0;
+  for(let c=1;c<=9;c++){let y=COL_TOP;
+    byClass[c].forEach(l=>{pos[l.cod]={x:colX(c)+CARD_W/2,y:y+CARD_H/2};y+=CARD_H+CARD_GAP});
+    maxColBottom=Math.max(maxColBottom,y+10);
+  }
+  GH=Math.max(spineH,maxColBottom)+16; GW=colX(9)+COLW;
+  // fundal coloane + cap de clasă + linie despărțitoare șiră/grilă
+  let bands=`<line x1="${SPINE_W+14}" y1="0" x2="${SPINE_W+14}" y2="${GH}" stroke="#dbe2ea" stroke-width="2"/>`;
+  for(let c=1;c<=9;c++){const x=colX(c);
+    bands+=`<rect x="${x-10}" y="26" width="${COLW}" height="${GH-36}" fill="${c%2?'#ffffff':'#f6f8fb'}"/>`+
+      `<text x="${x+CARD_W/2}" y="20" text-anchor="middle" class="band-lbl">Clasa ${ROMAN[c]}</text>`}
+  // muchii: fiecare LU -> ramurile de competență pe care le folosește
   let edges='';
-  Object.values(UCOMP).forEach(u=>{const a=pos['CS.'+u.cs],b=pos[u.cod];if(a&&b)edges+=gedge(a,b,csColor(u.cs),0.22,'CS.'+u.cs,u.cod)});
-  lus.forEach(l=>{const a=pos[l.cod];if(!a)return;l.ucomp.forEach(uc=>{const b=pos[uc];if(b)edges+=gedge(a,b,l.comp==='T'?'#f59e0b':'#3b82f6',0.16,l.cod,uc)})});
-  // noduri
-  let nodes='';
-  csList.forEach(cod=>{const p=pos[cod];const cs=C.cs.find(x=>x.cod===cod);nodes+=gbox(p.x,p.y,140,30,cod,cod,csColor(cod.split('.')[1]),csColor(cod.split('.')[1]),'#fff',12,cod+' — '+(cs?cs.enunt:''),false)});
-  Object.values(UCOMP).forEach(u=>{const p=pos[u.cod];if(!p)return;nodes+=gbox(p.x,p.y,90,22,u.cod,u.cod.replace('UComp.',''),'#fff',csColor(u.cs),csColor(u.cs),9.5,ucompTitle(u.cod),false)});
-  lus.forEach(l=>{const p=pos[l.cod];if(!p)return;nodes+=gbox(p.x,p.y,104,26,l.cod,l.cod,'#fff',l.comp==='T'?'#f59e0b':'#3b82f6','#334155',8.5,l.cod+' — '+l.title,true)});
+  lus.forEach(l=>{const a=pos[l.cod];if(!a)return;
+    l.ucomp.forEach(uc=>{const pp=uc.split('.');const key=pp[1]+'|'+pp[2];const by=bY[key];if(by===undefined)return;
+      edges+=gedge({x:SPINE_W+14,y:by},a,l.comp==='T'?'#f59e0b':'#3b82f6',0.16,branchId({cs:pp[1],z:pp[2]}),l.cod)});
+  });
+  // noduri șiră
+  let spineNodes='';
+  branches.forEach(b=>{const y=bY[branchKey(b)],col=csColor(b.cs),cls=b.nodes.map(n=>n.clasa);
+    const tip=`CS${b.cs} · ramura UC${b.z} — apare la clasele ${cls.map(w=>ROMAN[w]).join(', ')}. Clic = firul complet pe ani.`;
+    spineNodes+=gbox(SPINE_W/2-2,y,SPINE_W-22,expanded?24:26,branchId(b),'CS'+b.cs+'·UC'+b.z,'#fff',col,col,10,tip,false);
+    if(expanded){const dotW=(SPINE_W-38)/9; let dots='';
+      for(let c=1;c<=9;c++){const has=cls.includes(c);dots+=`<rect x="${(c-1)*dotW}" width="${dotW-2}" height="10" rx="2" fill="${has?col:'#e2e8f0'}"/>`}
+      spineNodes+=`<g transform="translate(16,${(y+15).toFixed(1)})" pointer-events="none">${dots}</g>`;
+    }
+  });
+  // noduri LU (o coloană = o clasă, stivuite vertical, fără împrăștiere orizontală)
+  let luNodes=''; lus.forEach(l=>{const p=pos[l.cod];if(p)luNodes+=luBoxHtml(l,p.x,p.y,CARD_W,CARD_H-6)});
   el.innerHTML=`<div class="graph-tools">
       <button onclick="zoomG(1.25)" title="Mărește">＋</button>
       <button onclick="zoomG(0.8)" title="Micșorează">－</button>
       <button onclick="zoomFit()" title="Încadrează">⤢ fit</button>
+      <button class="${!expanded?'on':''}" style="padding:0 10px" onclick="setGraphSpine('aggregated')">Ramuri agregate</button>
+      <button class="${expanded?'on':''}" style="padding:0 10px" onclick="setGraphSpine('expanded')">Ramuri pe ani (I–IX)</button>
       <span class="glegend">
         <span><span class="sq" style="background:#16a34a"></span>CS1</span>
         <span><span class="sq" style="background:#2563eb"></span>CS2</span>
@@ -288,15 +327,35 @@ function renderGraph(){
         <span><span class="sq" style="background:#7c3aed"></span>CS4</span>
         <span><span class="sq" style="background:#fff;border:2px solid #f59e0b"></span>LU Tehnologic</span>
         <span><span class="sq" style="background:#fff;border:2px solid #3b82f6"></span>LU Digital</span>
-        <span>· hover = evidențiază conexiuni · click pe LU = detalii</span>
+        <span>· stânga = ramuri de competență (agregate pe 9 ani) · dreapta = LU grupate pe clasă · hover = evidențiază conexiuni · clic pe ramură = firul complet pe ani · clic pe LU = detalii</span>
       </span></div>
     <div class="graph-wrap" id="gwrap"><svg id="gsvg" viewBox="0 0 ${GW} ${GH}">
-      <g>${bands}</g><g id="gedges">${edges}</g><g id="gnodes">${nodes}</g></svg></div>`;
+      <g>${bands}</g><g id="gedges">${edges}</g><g id="gnodes">${spineNodes}${luNodes}</g></svg></div>`;
   const svg=document.getElementById('gsvg');
   svg.addEventListener('mouseover',e=>{const g=e.target.closest('.gnode');if(g)hl(g.dataset.id)});
   svg.addEventListener('mouseout',e=>{const g=e.target.closest('.gnode');if(g)clearHl()});
-  svg.addEventListener('click',e=>{const g=e.target.closest('.gnode.lu');if(g)openPanel(g.dataset.id)});
+  svg.addEventListener('click',e=>{const g=e.target.closest('.gnode');if(!g)return;
+    const id=g.dataset.id;
+    if(id.startsWith('BR.')){const pp=id.split('.');graphBranchFocus(pp[1],pp[2])}
+    else openPanel(id);
+  });
   zoomFit();
+}
+function graphBranchFocus(cs,z){
+  const line=Object.values(UCOMP).filter(x=>{const q=x.cod.split('.');return q[1]===cs&&q[2]===z}).sort((a,b)=>(+a.cod.split('.')[3])-(+b.cod.split('.')[3]));
+  if(!line.length)return;
+  const chip=x=>`<span class="ucomp-chip" onclick="progFocus('ucomp','${x.cod}')" style="cursor:pointer" title="${esc(x.desc)}">${x.cod.replace('UComp.','')} · cl.${ROMAN[+x.cod.split('.')[3]]}</span>`;
+  const p=document.getElementById('panel'); p.className='open'; p.innerHTML=`
+    <div class="p-head"><button class="p-close" onclick="closePanel()">✕</button>
+      <div class="lu-code">CS${cs} · ramura UC${z} · fir complet I–IX</div>
+      <h2 style="margin:6px 0 0;font-size:16px">Cum se regăsește această competență pe parcursul anilor</h2></div>
+    <div class="p-body">
+      <div class="sec"><h3>Firul complet (clic pe un nod pentru pre-rechizite &amp; unități de învățare)</h3>
+        <div class="chipset">${line.map(chip).join('')}</div>
+        <div class="hint" style="margin-top:6px">Apare la clasele: ${line.map(x=>ROMAN[+x.cod.split('.')[3]]).join(', ')}.</div>
+      </div>
+    </div>`;
+  document.getElementById('overlay').className='open';
 }
 function hl(id){const svg=document.getElementById('gsvg');const conn=new Set([id]);
   svg.querySelectorAll('.edge').forEach(ed=>{const on=ed.dataset.a===id||ed.dataset.b===id;
@@ -340,22 +399,45 @@ function setSort(k){if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=1}renderTa
 /* ---------- DETAIL PANEL ---------- */
 function chipset(arr,cls){if(!arr||!arr.length)return '<span class="hint">—</span>';
   return '<div class="chipset">'+arr.map(t=>`<span class="chip ${cls}">${esc(t)}</span>`).join('')+'</div>'}
+// Structura unificată "Unități de conținut" (Document + panou), conform Șablonului:
+// Concepte/procese combinate, Aplicative, Context practic, Interdisciplinare, Noile educații,
+// Teme cross-curriculare, Terminologie specifică (= aceiași termeni ca Concepte — decizie de design,
+// vezi MASTER.md §7), Domenii de acțiune.
+function luContentBlocks(l){
+  const blocks=[];
+  const cp=[...(l.concepte||[]),...(l.procese||[])];
+  if(cp.length) blocks.push(['Concepte, procese și relații',cp]);
+  if(l.aplicative&&l.aplicative.length) blocks.push(['Conținuturi aplicative',l.aplicative]);
+  if(l.context_practic&&l.context_practic.length) blocks.push(['Context de învățare practică (învățare experiențială)',l.context_practic]);
+  if(l.interdisciplinare&&l.interdisciplinare.length) blocks.push(['Conținuturi interdisciplinare',l.interdisciplinare]);
+  if(l.noile_educatii&&l.noile_educatii.length) blocks.push(['Noile educații',l.noile_educatii]);
+  if(l.teme_cross&&l.teme_cross.length) blocks.push(['Teme cross-curriculare',l.teme_cross]);
+  if(l.concepte&&l.concepte.length) blocks.push(['Terminologie specifică',l.concepte]);
+  if(l.domenii&&l.domenii.length) blocks.push(['Domenii de acțiune',l.domenii]);
+  return blocks;
+}
+const LONGFORM_BLOCKS=new Set(['Context de învățare practică (învățare experiențială)','Conținuturi interdisciplinare','Noile educații','Teme cross-curriculare']);
 function openPanel(cod){
   const l=luById[cod]; if(!l)return;
   const p=document.getElementById('panel');
   // UC column
   const ucHtml=l.ucomp.map(x=>{const d=UCOMP[x];return `<div class="ucomp-row"><span class="ucomp-chip" title="${esc(ucompTitle(x))}">${x}</span><div class="hint" style="margin:2px 0 8px">${esc(d?d.desc:'')}</div></div>`}).join('')||'—';
-  // Content column (structured per Sablon)
+  // Content column (structurată conform Șablonului, vezi luContentBlocks)
   let cont='';
-  if(l.concepte&&l.concepte.length) cont+=`<div class="sec"><h3>Concepte, procese și relații</h3>${chipset(l.concepte,'concepte')}</div>`;
-  if(l.aplicative&&l.aplicative.length) cont+=`<div class="sec"><h3>Conținuturi aplicative</h3>${chipset(l.aplicative,'aplicative')}</div>`;
-  if(l.domenii&&l.domenii.length) cont+=`<div class="sec"><h3>Domenii de acțiune</h3>${chipset(l.domenii,'domenii')}</div>`;
-  if(l.procese&&l.procese.length) cont+=`<div class="sec"><h3>Procese</h3>${chipset(l.procese,'procese')}</div>`;
+  luContentBlocks(l).forEach(([label,items])=>{
+    if(LONGFORM_BLOCKS.has(label)){
+      cont+=`<div class="sec"><h3>${label}</h3><ul style="margin:0;padding-left:18px">${items.map(x=>`<li style="margin-bottom:4px;font-size:12.5px">${esc(x)}</li>`).join('')}</ul></div>`;
+    } else {
+      const cls=label==='Conținuturi aplicative'?'aplicative':(label==='Domenii de acțiune'?'domenii':'concepte');
+      cont+=`<div class="sec"><h3>${label}</h3>${chipset(items,cls)}</div>`;
+    }
+  });
   // UCon as content items with UComp tags
   let uconList='';
   l.ucon.forEach(cc=>{const u=UCON[cc];if(!u)return;
     const tags=(u.ucomp||[]).map(x=>`<span class="ucomp-chip" title="${esc(ucompTitle(x))}">${x}</span>`).join(' ');
     uconList+=`<div class="ucon-item"><div class="ucon-name">📄 ${esc(u.name)}</div><div>${tags||''}</div></div>`});
+  const rezList=(l.rezultate&&l.rezultate.length)?'<ul style="margin:0;padding-left:18px">'+l.rezultate.map(x=>`<li style="margin-bottom:4px;font-size:12.5px">${esc(x)}</li>`).join('')+'</ul>':'';
   p.className='open'; p.innerHTML=`
    <div class="p-head ${l.comp.toLowerCase()}">
      <button class="p-close" onclick="closePanel()">✕</button>
@@ -367,6 +449,7 @@ function openPanel(cod){
      ${l.valori&&l.valori.length?`<div class="sec"><h3>Valori promovate</h3>${chipset(l.valori,'valori')}</div>`:''}
      <div class="sec"><h3>Unități de competență</h3>${ucHtml}</div>
      <div class="sec"><h3>Unități de conținut (lecții)</h3>${uconList||'—'}<div class="hint" style="margin-top:6px">Fiecare lecție arată competențele pe care le dezvoltă (tag-uri). Hover = descriere.</div></div>
+     ${rezList?`<div class="sec"><h3>Rezultate ale învățării</h3><div class="hint" style="margin-bottom:6px">Elevul/eleva:</div>${rezList}</div>`:''}
      ${cont}
    </div>`;
   document.getElementById('overlay').className='open';
@@ -376,59 +459,174 @@ document.getElementById('overlay').onclick=closePanel;
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closePanel()});
 
 /* ---------- PROGRESIE ---------- */
+// Taxonomia DigComp 3.0 (5 arii · 21 competențe) — folosită pentru schema 'domenii' de mai jos.
+// Textul 'code+" "+name' trebuie să coincidă exact cu numele notelor Domeniu (fără prefixul 'Domeniu - '),
+// pentru că așa apar șirurile în l.domenii (extrase din secțiunea ## Domenii a fiecărui LU.D).
+const DIGCOMP=[
+ {area:1,areaName:'1 · Căutarea, evaluarea și gestionarea informației',code:'1.1',name:'Navigarea, căutarea și filtrarea informației'},
+ {area:1,areaName:'1 · Căutarea, evaluarea și gestionarea informației',code:'1.2',name:'Evaluarea informației'},
+ {area:1,areaName:'1 · Căutarea, evaluarea și gestionarea informației',code:'1.3',name:'Gestionarea informației'},
+ {area:2,areaName:'2 · Comunicarea și colaborarea',code:'2.1',name:'Interacțiunea prin și cu tehnologiile digitale'},
+ {area:2,areaName:'2 · Comunicarea și colaborarea',code:'2.2',name:'Partajarea prin tehnologii digitale'},
+ {area:2,areaName:'2 · Comunicarea și colaborarea',code:'2.3',name:'Implicarea civică prin tehnologii digitale'},
+ {area:2,areaName:'2 · Comunicarea și colaborarea',code:'2.4',name:'Colaborarea prin tehnologii digitale'},
+ {area:2,areaName:'2 · Comunicarea și colaborarea',code:'2.5',name:'Comportamentul digital'},
+ {area:2,areaName:'2 · Comunicarea și colaborarea',code:'2.6',name:'Gestionarea identității digitale'},
+ {area:3,areaName:'3 · Crearea de conținut',code:'3.1',name:'Dezvoltarea conținutului digital'},
+ {area:3,areaName:'3 · Crearea de conținut',code:'3.2',name:'Integrarea și reelaborarea conținutului digital'},
+ {area:3,areaName:'3 · Crearea de conținut',code:'3.3',name:'Drepturi de autor și licențe'},
+ {area:3,areaName:'3 · Crearea de conținut',code:'3.4',name:'Gândirea computațională și programarea'},
+ {area:4,areaName:'4 · Siguranța, starea de bine și utilizarea responsabilă',code:'4.1',name:'Protejarea dispozitivelor'},
+ {area:4,areaName:'4 · Siguranța, starea de bine și utilizarea responsabilă',code:'4.2',name:'Protejarea datelor personale și a vieții private'},
+ {area:4,areaName:'4 · Siguranța, starea de bine și utilizarea responsabilă',code:'4.3',name:'Sprijinirea stării de bine'},
+ {area:4,areaName:'4 · Siguranța, starea de bine și utilizarea responsabilă',code:'4.4',name:'Impactul asupra mediului al tehnologiilor digitale'},
+ {area:5,areaName:'5 · Identificarea și soluționarea problemelor',code:'5.1',name:'Identificarea și soluționarea problemelor tehnice'},
+ {area:5,areaName:'5 · Identificarea și soluționarea problemelor',code:'5.2',name:'Identificarea nevoilor și a răspunsurilor tehnologice digitale'},
+ {area:5,areaName:'5 · Identificarea și soluționarea problemelor',code:'5.3',name:'Identificarea unor soluții creative prin tehnologii digitale'},
+ {area:5,areaName:'5 · Identificarea și soluționarea problemelor',code:'5.4',name:'Identificarea și abordarea nevoilor de competență digitală'},
+];
+const AREACOL={1:'#0891b2',2:'#3b82f6',3:'#8b5cf6',4:'#e11d48',5:'#059669',T:'#475569'};
+// Cele 6 domenii de acțiune proprii modulelor T (Educație tehnologică) — taxonomie proprie vaultului,
+// nu DigComp (asta e doar pentru D). Textul 'code+" "+name' trebuie să coincidă exact cu numele notelor
+// Domeniu (fără prefixul 'Domeniu - '), la fel ca la DIGCOMP mai jos.
+const TDOM=[
+ {code:'T1',name:'Tehnologii agroalimentare'},
+ {code:'T2',name:'Meșteșuguri și arte tradiționale'},
+ {code:'T3',name:'Design și creație vizual-aplicată'},
+ {code:'T4',name:'Design de spații și obiecte de uz personal'},
+ {code:'T5',name:'Reciclare, sustenabilitate și tehnologii ale mediului'},
+ {code:'T6',name:'Robotică, automatizare și tehnologii digitale aplicate'},
+];
+const TDOMCOL={T1:'#84cc16',T2:'#a16207',T3:'#db2777',T4:'#0d9488',T5:'#15803d',T6:'#4338ca'};
 let progMode='competente';
 function setProgMode(m){progMode=m;renderProg();}
 function renderProg(){
   const el=document.getElementById('prog');
   let lines=[];
-  if(progMode==='competente'){
+  const isDomenii=progMode==='domenii';
+  if(progMode==='domenii'){
+    // Domenii de acțiune, combinate într-o singură fereastră: D = DigComp 3.0 (5 arii -> 21 sub-competențe),
+    // T = taxonomie proprie (6 domenii, o singură "arie" umbrelă). Comutatorul ▮ Tehnologic / ▮ Digital din
+    // antet decide ce se afișează aici — nu mai există butoane separate per componentă.
+    if(state.comp.D) DIGCOMP.forEach(sc=>{
+      const key=sc.code+' '+sc.name;
+      const nodes=[];
+      C.lu.filter(l=>l.comp==='D' && l.domenii && l.domenii.includes(key)).forEach(l=>{
+        nodes.push({clasa:l.clasa,id:l.cod,label:l.cod,title:l.title,kind:'lu'});
+      });
+      nodes.sort((a,b)=>a.clasa-b.clasa);
+      lines.push({area:sc.area,areaName:sc.areaName,code:sc.code,label:sc.name,color:AREACOL[sc.area],nodes});
+    });
+    if(state.comp.T) TDOM.forEach(td=>{
+      const key=td.code+' '+td.name;
+      const nodes=[];
+      C.lu.filter(l=>l.comp==='T' && l.domenii && l.domenii.includes(key)).forEach(l=>{
+        nodes.push({clasa:l.clasa,id:l.cod,label:l.cod,title:l.title,kind:'lu'});
+      });
+      nodes.sort((a,b)=>a.clasa-b.clasa);
+      lines.push({area:'T',areaName:'Educație tehnologică · domenii proprii (nu DigComp)',code:td.code,label:td.name,color:TDOMCOL[td.code],nodes});
+    });
+    if(state.q)lines=lines.filter(L=>L.label.toLowerCase().includes(state.q)||L.areaName.toLowerCase().includes(state.q)||L.nodes.some(n=>(n.id+' '+n.title).toLowerCase().includes(state.q)));
+  } else if(progMode==='competente'){
+    // Grupare pe (CS, ramură) INDIFERENT de ciclu — firul continuă peste granița primar/gimnaziu
+    // acolo unde ramura chiar există; unde nu există la o clasă, pur și simplu nu apare nod acolo
+    // (iar conectorul dintre noduri neconsecutive e desenat punctat, ca discontinuitatea să fie vizibilă).
     const groups={};
-    Object.values(UCOMP).forEach(u=>{const pp=u.cod.split('.');const y=pp[1],z=pp[2],w=+pp[3];const cyc=w<=4?'primar':'gimnaziu';
-      const key=y+'|'+z+'|'+cyc;(groups[key]=groups[key]||{cs:y,z:z,cyc:cyc,nodes:[]}).nodes.push({clasa:w,id:u.cod,title:u.desc})});
+    Object.values(UCOMP).forEach(u=>{const pp=u.cod.split('.');const y=pp[1],z=pp[2],w=+pp[3];
+      const key=y+'|'+z;(groups[key]=groups[key]||{cs:y,z:z,nodes:[]}).nodes.push({clasa:w,id:u.cod,title:u.desc,cyc:w<=4?'primar':'gimnaziu'})});
     Object.values(groups).forEach(g=>{g.nodes.sort((a,b)=>a.clasa-b.clasa);
-      lines.push({cs:g.cs,z:+g.z,cyc:g.cyc,label:`CS${g.cs} · UC${g.z}`,sub:g.cyc,color:csColor(g.cs),
+      const spanPrimar=g.nodes.some(n=>n.cyc==='primar'), spanGimnaziu=g.nodes.some(n=>n.cyc==='gimnaziu');
+      const sub=spanPrimar&&spanGimnaziu?'I–IX':(spanPrimar?'I–IV':'V–IX');
+      lines.push({cs:g.cs,z:+g.z,label:`CS${g.cs} · UC${g.z}`,sub,color:csColor(g.cs),
         nodes:g.nodes.map(n=>({clasa:n.clasa,id:n.id,label:n.id.replace('UComp.',''),title:n.title,kind:'ucomp'}))})});
-    lines.sort((a,b)=>a.cs.localeCompare(b.cs)||(a.cyc>b.cyc?1:a.cyc<b.cyc?-1:0)||a.z-b.z);
+    lines.sort((a,b)=>a.cs.localeCompare(b.cs)||a.z-b.z);
     if(state.q)lines=lines.filter(L=>L.label.toLowerCase().includes(state.q)||L.nodes.some(n=>(n.id+' '+n.title).toLowerCase().includes(state.q)));
   } else {
+    // T: grupare pe titlul modulului (recurent peste clase). D: grupare pe domeniu de acțiune
+    // (titlurile D nu se repetă între clase, deci gruparea pe titlu nu arată progresie — pe domeniu, da).
     const groups={};
-    C.lu.filter(l=>state.comp[l.comp]).forEach(l=>{const key=l.comp+'||'+l.title;(groups[key]=groups[key]||{comp:l.comp,title:l.title,nodes:[]}).nodes.push(l)});
+    C.lu.filter(l=>state.comp[l.comp]).forEach(l=>{
+      if(l.comp==='D' && l.domenii && l.domenii.length){
+        l.domenii.forEach(dom=>{const key='D||'+dom;(groups[key]=groups[key]||{comp:'D',title:dom,nodes:[]}).nodes.push(l)});
+      } else {
+        const key=l.comp+'||'+l.title;(groups[key]=groups[key]||{comp:l.comp,title:l.title,nodes:[]}).nodes.push(l);
+      }
+    });
     Object.values(groups).forEach(g=>{g.nodes.sort((a,b)=>a.clasa-b.clasa);
-      lines.push({comp:g.comp,label:g.title,sub:g.comp==='T'?'Tehnologic':'Digital',color:g.comp==='T'?'#f59e0b':'#3b82f6',
+      lines.push({comp:g.comp,label:g.title,sub:g.comp==='T'?'Tehnologic · modul':'Digital · domeniu de acțiune',color:g.comp==='T'?'#f59e0b':'#3b82f6',
         nodes:g.nodes.map(l=>({clasa:l.clasa,id:l.cod,label:l.cod,title:l.title,kind:'lu'}))})});
     lines.sort((a,b)=>a.sub.localeCompare(b.sub)||a.label.localeCompare(b.label));
     if(state.q)lines=lines.filter(L=>L.label.toLowerCase().includes(state.q)||L.nodes.some(n=>(n.id+' '+n.title).toLowerCase().includes(state.q)));
   }
-  const LBL=235,COLW=126,ROWH=52,TOP=42,W=LBL+9*COLW,H=TOP+lines.length*ROWH+20;
+  const AREA_W=170,SUB_W=165;
+  const LBL=isDomenii?AREA_W+SUB_W:235,COLW=126,ROWH=isDomenii?40:52,TOP=42,W=LBL+9*COLW,H=TOP+lines.length*ROWH+20;
   const cx=c=>LBL+(c-0.5)*COLW;
   let head=''; for(let c=1;c<=9;c++)head+=`<text x="${cx(c)}" y="26" text-anchor="middle" class="prog-head">Clasa ${ROMAN[c]}</text>`;
   let grid=''; for(let c=0;c<=9;c++){const x=LBL+c*COLW;grid+=`<line x1="${x}" y1="32" x2="${x}" y2="${H-10}" stroke="#eef2f7"/>`}
+  // coloana Arie (stânga) — bloc unic, centrat vertical, pentru fiecare grup contiguu de rânduri cu aceeași arie
+  let areaBlocks='';
+  if(isDomenii){
+    let idx=0;
+    while(idx<lines.length){
+      let j=idx; while(j<lines.length && lines[j].area===lines[idx].area) j++;
+      const y0=TOP+idx*ROWH, y1=TOP+j*ROWH, yc=(y0+y1)/2, col=AREACOL[lines[idx].area];
+      areaBlocks+=`<rect x="0" y="${y0}" width="${AREA_W}" height="${y1-y0}" fill="${col}" opacity="0.08"/><rect x="0" y="${y0}" width="4" height="${y1-y0}" fill="${col}"/>`;
+      const words=lines[idx].areaName.split(' '); let ln='',lns=[];
+      words.forEach(w=>{if((ln+' '+w).trim().length>20){lns.push(ln.trim());ln=w}else ln=(ln+' '+w).trim()});
+      if(ln)lns.push(ln.trim());
+      lns.forEach((t,k)=>{areaBlocks+=`<text x="14" y="${(yc-((lns.length-1)*6)+k*12).toFixed(1)}" font-size="10.5" font-weight="700" fill="${col}">${esc(t)}</text>`});
+      idx=j;
+    }
+  }
   let rows='';
   lines.forEach((L,i)=>{const y=TOP+i*ROWH+ROWH/2;
-    rows+=`<rect x="0" y="${y-ROWH/2}" width="${W}" height="${ROWH}" fill="${i%2?'#f8fafc':'#fff'}"/>`;
-    rows+=`<text x="10" y="${y-2}" class="prog-lbl">${esc(L.label.length>30?L.label.slice(0,30)+'…':L.label)}</text><text x="10" y="${y+13}" class="prog-sub">${esc(L.sub)}</text>`;
-    for(let k=1;k<L.nodes.length;k++){const a=cx(L.nodes[k-1].clasa),b=cx(L.nodes[k].clasa);
-      rows+=`<line x1="${a+42}" y1="${y}" x2="${b-44}" y2="${y}" stroke="${L.color}" stroke-width="2" marker-end="url(#arr)" opacity="0.65"/>`}
-    L.nodes.forEach(n=>{const x=cx(n.clasa);
-      rows+=`<g class="prog-node" data-kind="${n.kind}" data-id="${n.id}" transform="translate(${x-42},${y-14})"><title>${esc(n.title)}</title>
-        <rect width="84" height="28" rx="6" fill="#fff" stroke="${L.color}" stroke-width="2"/>
-        <text x="42" y="18" text-anchor="middle" font-size="9.5" fill="#334155">${esc(n.label)}</text></g>`});
+    rows+=`<rect x="${isDomenii?AREA_W:0}" y="${y-ROWH/2}" width="${W-(isDomenii?AREA_W:0)}" height="${ROWH}" fill="${i%2?'#f8fafc':'#fff'}"/>`;
+    const labelX=isDomenii?AREA_W+10:10;
+    rows+=`<text x="${labelX}" y="${isDomenii?y+3:y-2}" class="prog-lbl" font-size="${isDomenii?'10.5':'11.5'}">${esc(L.label.length>30?L.label.slice(0,30)+'…':L.label)}</text>`;
+    if(!isDomenii) rows+=`<text x="${labelX}" y="${y+13}" class="prog-sub">${esc(L.sub)}</text>`;
+    // grupare pe clasă (pot exista 2+ noduri în aceeași clasă, ex. 2 LU-D cu același domeniu)
+    const byClass={}; L.nodes.forEach(n=>{(byClass[n.clasa]=byClass[n.clasa]||[]).push(n)});
+    const classKeys=Object.keys(byClass).map(Number).sort((a,b)=>a-b);
+    for(let k=1;k<classKeys.length;k++){const gap=classKeys[k]-classKeys[k-1]>1;
+      const a=cx(classKeys[k-1]),b=cx(classKeys[k]);
+      rows+=`<line x1="${a+42}" y1="${y}" x2="${b-44}" y2="${y}" stroke="${L.color}" stroke-width="2" ${gap?'stroke-dasharray="5,4"':''} marker-end="url(#arr)" opacity="${gap?0.32:0.65}"/>`}
+    classKeys.forEach(cls=>{const arr=byClass[cls];const x=cx(cls);
+      if(arr.length===1){const n=arr[0];
+        rows+=`<g class="prog-node" data-kind="${n.kind}" data-id="${n.id}" transform="translate(${x-42},${y-14})"><title>${esc(n.title)}</title>
+          <rect width="84" height="28" rx="6" fill="#fff" stroke="${L.color}" stroke-width="2"/>
+          <text x="42" y="18" text-anchor="middle" font-size="9.5" fill="#334155">${esc(n.label)}</text></g>`;
+      } else {
+        const bh=Math.max(13,28/arr.length);
+        arr.forEach((n,idx)=>{const ny=y-(bh*arr.length)/2+idx*bh;
+          rows+=`<g class="prog-node" data-kind="${n.kind}" data-id="${n.id}" transform="translate(${x-42},${ny})"><title>${esc(n.title)}</title>
+            <rect width="84" height="${bh-1}" rx="3" fill="#fff" stroke="${L.color}" stroke-width="1.4"/>
+            <text x="42" y="${bh/2+3}" text-anchor="middle" font-size="7.5" fill="#334155">${esc(n.label)}</text></g>`});
+      }
+    });
   });
+  const legendDomenii=`${state.comp.D?`<span>${[1,2,3,4,5].map(a=>`<span><span class="sq" style="background:${AREACOL[a]}"></span>Aria ${a}</span>`).join(' ')}</span>`:''}
+       ${state.comp.T?`<span>${TDOM.map(td=>`<span><span class="sq" style="background:${TDOMCOL[td.code]}"></span>${td.code}</span>`).join(' ')}</span>`:''}
+       <span>· D = DigComp 3.0 (5 arii → 21 sub-competențe, toate afișate) · T = taxonomie proprie vaultului (6 domenii, nu DigComp) — comută cu ▮ Tehnologic / ▮ Digital din antet · click pe nod LU = detalii</span>`;
+  const legendDefault=`<span><span class="sq" style="background:#94a3b8"></span>→ progresie · pre-rechizitul = nodul anterior din fir</span>
+       <span>· click pe nod = pre-rechizite & detalii</span>
+       <span>· linie continuă = clase consecutive · <span style="border-bottom:2px dashed #94a3b8;padding-bottom:1px">linie punctată</span> = discontinuitate (nu există la clasa/clasele dintre)</span>`;
+  const legend=isDomenii?legendDomenii:legendDefault;
   el.innerHTML=`<div class="prog-tools">
      <button class="${progMode==='competente'?'on':''}" onclick="setProgMode('competente')">Competențe (UComp)</button>
      <button class="${progMode==='module'?'on':''}" onclick="setProgMode('module')">Module / scenarii (LU)</button>
-     <span class="glegend"><span><span class="sq" style="background:#94a3b8"></span>→ progresie · pre-rechizitul = nodul anterior din fir</span>
-       <span>· click pe nod = pre-rechizite & detalii</span>${progMode==='competente'?'<span>· firele separă primar (I–IV) de gimnaziu (V–IX)</span>':''}</span></div>
+     <button class="${progMode==='domenii'?'on':''}" onclick="setProgMode('domenii')">Domenii</button>
+     <span class="glegend">${legend}</span></div>
    <div class="graph-wrap"><svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
      <defs><marker id="arr" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#94a3b8"/></marker></defs>
-     <g>${grid}</g><g>${rows}</g><g>${head}</g></svg></div>`;
+     <g>${grid}</g><g>${areaBlocks}</g><g>${rows}</g><g>${head}</g></svg></div>`;
   el.querySelector('svg').addEventListener('click',e=>{const g=e.target.closest('.prog-node');if(g)progFocus(g.dataset.kind,g.dataset.id)});
 }
 function progFocus(kind,id){
   if(kind==='lu'){openPanel(id);return}
   const u=UCOMP[id]; if(!u)return;
   const pp=id.split('.'),y=pp[1],z=pp[2],w=+pp[3],cyc=w<=4?'primar':'gimnaziu';
-  const line=Object.values(UCOMP).filter(x=>{const q=x.cod.split('.');return q[1]===y&&q[2]===z&&((+q[3]<=4)===(w<=4))}).sort((a,b)=>(+a.cod.split('.')[3])-(+b.cod.split('.')[3]));
+  // firul complet I–IX pe (CS, ramură) — nu se mai oprește la granița primar/gimnaziu
+  const line=Object.values(UCOMP).filter(x=>{const q=x.cod.split('.');return q[1]===y&&q[2]===z}).sort((a,b)=>(+a.cod.split('.')[3])-(+b.cod.split('.')[3]));
   const idx=line.findIndex(x=>x.cod===id), prev=line.slice(0,idx), next=line.slice(idx+1);
   const chip=x=>`<span class="ucomp-chip" title="Clasa ${ROMAN[+x.cod.split('.')[3]]} — ${esc(x.desc)}" onclick="progFocus('ucomp','${x.cod}')" style="cursor:pointer">${x.cod.replace('UComp.','')}</span>`;
   const dev=(ucompToLU[id]||[]).map(c=>`<span class="ucomp-chip" onclick="openPanel('${c}')" style="cursor:pointer" title="${esc(luById[c].title)}">${c}</span>`).join(' ');
@@ -478,18 +676,21 @@ function renderDoc(){
       eb+=`<tr><td colspan="3" style="background:#f1f5f9;font-weight:700;font-size:10.5pt">${esc(l.title)} <span class="tagline">[${l.cod}] — ${nOre} ore</span>${valStr}</td></tr>`;
       // UC column
       const ucHtml=l.ucomp.map(u=>{const d=UCOMP[u];return `<b>${u.replace('UComp.','')}</b> ${esc(d?d.desc:'')}`}).join('<br><br>');
-      // content column — structured per sablon
+      // content column — structurată conform Șablonului (vezi luContentBlocks): Concepte/procese,
+      // Aplicative, Context practic, Interdisciplinare, Noile educații, Teme cross-curriculare,
+      // Terminologie specifică, Domenii de acțiune — fiecare categorie ca listă cu marcatori.
       let cont='';
-      if(l.concepte&&l.concepte.length) cont+=`<b>Concepte, procese și relații:</b><br>${l.concepte.map(esc).join('; ')}.<br><br>`;
-      if(l.aplicative&&l.aplicative.length) cont+=`<b>Conținuturi aplicative:</b><ul>${l.aplicative.map(x=>'<li>'+esc(x)+'</li>').join('')}</ul>`;
-      if(l.domenii&&l.domenii.length) cont+=`<b>Domenii de acțiune:</b><br>${l.domenii.map(esc).join('; ')}.<br><br>`;
-      if(l.procese&&l.procese.length) cont+=`<b>Procese:</b><br>${l.procese.map(esc).join('; ')}.<br><br>`;
-      // fallback: list UCon as content items
+      luContentBlocks(l).forEach(([label,items])=>{
+        cont+=`<b>${label}:</b><ul>${items.map(x=>'<li>'+esc(x)+'</li>').join('')}</ul>`;
+      });
+      // fallback: list UCon as content items (doar dacă LU nu are nicio categorie populată)
       if(!cont && l.ucon && l.ucon.length){
         cont=l.ucon.map(x=>{const u=UCON[x];return u?esc(u.name):x}).join('<br>');
       }
-      // results column (UCon names as learning outcomes)
-      const rezHtml=l.ucon&&l.ucon.length?'<b>Elevul/eleva:</b><ul>'+l.ucon.map(x=>{const u=UCON[x];return '<li>'+esc(u?u.name:x)+'</li>'}).join('')+'</ul>':'—';
+      // results column — rezultatele reale (verb + obiect), nu titlurile lecțiilor;
+      // fallback pe titluri de lecție doar dacă LU chiar nu are încă ## Rezultate ale învățării
+      const rezHtml=l.rezultate&&l.rezultate.length?'<b>Elevul/eleva:</b><ul>'+l.rezultate.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>'
+        :(l.ucon&&l.ucon.length?'<b>Elevul/eleva:</b><ul>'+l.ucon.map(x=>{const u=UCON[x];return '<li>'+esc(u?u.name:x)+'</li>'}).join('')+'</ul>':'—');
       eb+=`<tr><td>${ucHtml}</td><td>${cont}</td><td>${rezHtml}</td></tr>`;
     });
     eb+=`</tbody></table></div>`;
@@ -508,6 +709,7 @@ function renderDoc(){
   for(let c=1;c<=9;c++)opts+=`<option value="${c}" ${sel===String(c)?'selected':''}>Clasa ${ROMAN[c]}</option>`;
   el.innerHTML=`<div class="doc-tools">
      <button class="primary" onclick="window.print()">🖨 Printează / Export PDF</button>
+     <button class="primary" onclick="exportDocx()" title="Generează un fișier .docx din conținutul afișat curent (întreg document sau doar clasa selectată)">📝 Export DOCX</button>
      <button onclick="location.reload()" title="Reîncarcă datele din data.js. După ce modifici notițele, rulează întâi genereaza_date.py.">🔄 Sincronizează din notițe</button>
      <label>Conținut: <select onchange="setDocClass(this.value)">${opts}</select></label>
      <span class="meta">A4 · structură conform Metodologiei de dezvoltare a curriculumului</span></div>
@@ -516,6 +718,128 @@ function renderDoc(){
      <p class="doc-sub">Educație tehnologică și TIC · învățământ primar și gimnazial · clasele I–IX<br>${sel==='all'?'document integral':'Clasa '+ROMAN[+sel]}</p>
      ${narr}${admin}${csb}${eb}${fb}
    </div></div>`;
+}
+
+/* ---------- EXPORT DOCX (generator minimal, fără dependințe externe) ---------- */
+const CRC_TABLE=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=(c&1)?(0xEDB88320^(c>>>1)):(c>>>1);t[n]=c>>>0}return t})();
+function crc32(bytes){let c=0xFFFFFFFF;for(let i=0;i<bytes.length;i++)c=CRC_TABLE[(c^bytes[i])&0xFF]^(c>>>8);return (c^0xFFFFFFFF)>>>0}
+function u16(n){return [n&0xFF,(n>>8)&0xFF]}
+function u32(n){return [n&0xFF,(n>>8)&0xFF,(n>>16)&0xFF,(n>>>24)&0xFF]}
+function makeZip(files){
+  let offset=0; const localParts=[],centralParts=[];
+  files.forEach(f=>{
+    const nameBytes=Array.from(new TextEncoder().encode(f.name));
+    const crc=crc32(f.data), size=f.data.length;
+    const lh=new Uint8Array([...u32(0x04034b50),...u16(20),...u16(0),...u16(0),...u16(0),...u16(0x21),
+      ...u32(crc),...u32(size),...u32(size),...u16(nameBytes.length),...u16(0),...nameBytes]);
+    localParts.push(lh,f.data);
+    const ch=new Uint8Array([...u32(0x02014b50),...u16(20),...u16(20),...u16(0),...u16(0),...u16(0),...u16(0x21),
+      ...u32(crc),...u32(size),...u32(size),...u16(nameBytes.length),...u16(0),...u16(0),...u16(0),...u16(0),...u32(0),...u32(offset),...nameBytes]);
+    centralParts.push(ch);
+    offset+=lh.length+size;
+  });
+  const centralOffset=offset, centralSize=centralParts.reduce((s,p)=>s+p.length,0);
+  const eocd=new Uint8Array([...u32(0x06054b50),...u16(0),...u16(0),...u16(files.length),...u16(files.length),
+    ...u32(centralSize),...u32(centralOffset),...u16(0)]);
+  const all=[...localParts,...centralParts,eocd];
+  const total=all.reduce((s,p)=>s+p.length,0);
+  const out=new Uint8Array(total); let pos=0; all.forEach(p=>{out.set(p,pos);pos+=p.length});
+  return out;
+}
+function xmlEsc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function runXml(text,bold){if(!text)return '';return `<w:r>${bold?'<w:rPr><w:b/></w:rPr>':''}<w:t xml:space="preserve">${xmlEsc(text)}</w:t></w:r>`}
+function inlineRuns(node,bold){
+  let out=''; (node.childNodes||[]).forEach(ch=>{
+    if(ch.nodeType===3) out+=runXml(ch.textContent,bold);
+    else if(ch.nodeType===1){const tag=ch.tagName.toLowerCase();
+      if(tag==='strong'||tag==='b') out+=inlineRuns(ch,true);
+      else if(tag==='br') out+='<w:br/>';
+      else out+=inlineRuns(ch,bold);
+    }});
+  return out;
+}
+function paraXml(runsXml,opts){opts=opts||{};const props=[];
+  if(opts.align) props.push(`<w:jc w:val="${opts.align}"/>`);
+  if(opts.spacing) props.push(`<w:spacing w:before="${opts.spacing[0]||0}" w:after="${opts.spacing[1]||0}"/>`);
+  return `<w:p>${props.length?'<w:pPr>'+props.join('')+'</w:pPr>':''}${runsXml||''}</w:p>`;
+}
+function headingXml(text,size,opts){opts=opts||{};
+  return `<w:p><w:pPr>${opts.align?`<w:jc w:val="${opts.align}"/>`:''}<w:spacing w:before="240" w:after="120"/></w:pPr><w:r><w:rPr><w:b/><w:sz w:val="${size}"/></w:rPr><w:t xml:space="preserve">${xmlEsc(text)}</w:t></w:r></w:p>`;
+}
+function tableXml(tableEl){
+  const rows=[...tableEl.querySelectorAll(':scope > thead > tr, :scope > tbody > tr')];
+  let trs='';
+  rows.forEach(tr=>{
+    let tcs='';
+    [...tr.children].forEach(td=>{
+      const isHeader=td.tagName.toLowerCase()==='th';
+      const colspan=parseInt(td.getAttribute('colspan')||'1',10);
+      const gridSpan=colspan>1?`<w:gridSpan w:val="${colspan}"/>`:'';
+      const shade=isHeader?'<w:shd w:val="clear" w:fill="E2E8F0"/>':'';
+      let cellBody='';
+      const hasList=td.querySelector(':scope > ul, :scope > ol');
+      if(hasList){
+        td.childNodes.forEach(ch=>{
+          if(ch.nodeType===1&&(ch.tagName==='UL'||ch.tagName==='OL')){
+            [...ch.children].forEach(li=>{cellBody+=paraXml(runXml('• ',isHeader)+inlineRuns(li,isHeader))});
+          } else if(ch.nodeType===1||(ch.nodeType===3&&ch.textContent.trim())){
+            cellBody+=paraXml(inlineRuns({childNodes:[ch]},isHeader));
+          }
+        });
+      } else {
+        cellBody=paraXml(inlineRuns(td,isHeader));
+      }
+      if(!cellBody) cellBody=paraXml('');
+      tcs+=`<w:tc><w:tcPr><w:tcW w:w="0" w:type="auto"/>${gridSpan}${shade}</w:tcPr>${cellBody}</w:tc>`;
+    });
+    trs+=`<w:tr>${tcs}</w:tr>`;
+  });
+  return `<w:tbl><w:tblPr><w:tblW w:w="0" w:type="auto"/><w:tblBorders><w:top w:val="single" w:sz="4" w:color="94A3B8"/><w:left w:val="single" w:sz="4" w:color="94A3B8"/><w:bottom w:val="single" w:sz="4" w:color="94A3B8"/><w:right w:val="single" w:sz="4" w:color="94A3B8"/><w:insideH w:val="single" w:sz="4" w:color="94A3B8"/><w:insideV w:val="single" w:sz="4" w:color="94A3B8"/></w:tblBorders></w:tblPr>${trs}</w:tbl>`;
+}
+function blockWalk(el){
+  let xml='';
+  el.childNodes.forEach(ch=>{
+    if(ch.nodeType!==1) return;
+    const tag=ch.tagName.toLowerCase(), cls=ch.className||'';
+    if(tag==='h1') xml+=headingXml(ch.textContent.trim(),36,{align:'center'});
+    else if(tag==='h2') xml+=headingXml(ch.textContent.trim(),28);
+    else if(tag==='h3') xml+=headingXml(ch.textContent.trim(),24);
+    else if(tag==='p') xml+=paraXml(inlineRuns(ch,false),{align:cls.includes('doc-sub')?'center':undefined,spacing:[0,120]});
+    else if(tag==='ul'||tag==='ol') [...ch.children].forEach((li,idx)=>{xml+=paraXml(runXml(tag==='ol'?(idx+1)+'. ':'• ',false)+inlineRuns(li,false))});
+    else if(tag==='table') xml+=tableXml(ch);
+    else if(tag==='small') xml+=paraXml(inlineRuns(ch,false));
+    else xml+=blockWalk(ch);
+  });
+  return xml;
+}
+function exportDocx(){
+  const sheet=document.querySelector('.sheet');
+  if(!sheet){alert('Deschide întâi tab-ul Document.');return}
+  const bodyXml=blockWalk(sheet);
+  const documentXml=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n`+
+    `<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">`+
+    `<w:body>${bodyXml}<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1417" w:right="1417" w:bottom="1417" w:left="1417"/></w:sectPr></w:body></w:document>`;
+  const contentTypes=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n`+
+    `<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>`;
+  const rels=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n`+
+    `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>`;
+  const docRels=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n`+
+    `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"></Relationships>`;
+  const enc=s=>new TextEncoder().encode(s);
+  const files=[
+    {name:'[Content_Types].xml',data:enc(contentTypes)},
+    {name:'_rels/.rels',data:enc(rels)},
+    {name:'word/document.xml',data:enc(documentXml)},
+    {name:'word/_rels/document.xml.rels',data:enc(docRels)},
+  ];
+  const zipBytes=makeZip(files);
+  const blob=new Blob([zipBytes],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url;
+  const clsTag=state.docClass&&state.docClass!=='all'?'clasa-'+state.docClass:'integral';
+  a.download=`curriculum-${clsTag}.docx`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),4000);
 }
 
 /* ---------- WIRING ---------- */
