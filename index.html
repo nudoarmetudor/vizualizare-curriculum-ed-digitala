@@ -15,6 +15,7 @@
   --c-procese:#0284c7; --c-procese-bg:#e0f2fe;
   --c-aplicative:#d97706; --c-aplicative-bg:#fef3c7;
   --ucomp:#475569; --ucomp-bg:#e2e8f0;
+  --doc-blue-dk:#1f4e79; --doc-blue-md:#2e74b5; --doc-blue-lt:#dce6f1; --doc-blue-bd:#9dc3e6;
 }
 *{box-sizing:border-box}
 body{margin:0;font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px}
@@ -85,21 +86,39 @@ main{padding:16px}
 .doc-tools select{padding:6px 8px;border:1px solid var(--border);border-radius:7px}
 .doc-scroll{overflow:auto;max-height:82vh;background:#e9edf2;padding:18px;border-radius:10px}
 .sheet{width:210mm;min-height:297mm;margin:0 auto;background:#fff;box-shadow:0 2px 14px rgba(0,0,0,.2);padding:20mm 18mm;box-sizing:border-box;color:#111;font-family:'Georgia','Times New Roman',serif;font-size:11.5pt;line-height:1.5}
-.sheet h1.doc-title{font-size:21pt;text-align:center;margin:0 0 3pt}
+.sheet h1.doc-title{font-size:21pt;text-align:center;margin:0 0 3pt;color:var(--doc-blue-dk)}
 .sheet .doc-sub{text-align:center;color:#444;margin:0 0 22pt;font-size:12pt}
-.sheet h2{font-size:15pt;border-bottom:2px solid #0f172a;padding-bottom:3pt;margin:20pt 0 9pt}
-.sheet h3{font-size:13pt;margin:14pt 0 6pt;color:#0f172a}
+.sheet h2{font-size:15pt;color:var(--doc-blue-dk);border-bottom:2px solid var(--doc-blue-md);padding-bottom:3pt;margin:20pt 0 9pt}
+.sheet h3{font-size:13pt;margin:14pt 0 6pt;color:var(--doc-blue-md)}
 .sheet p{margin:0 0 8pt;text-align:justify}
 .sheet ul,.sheet ol{margin:0 0 8pt 0;padding-left:20pt}
 .sheet table.doc{width:100%;border-collapse:collapse;margin:6pt 0;font-size:9.5pt;font-family:'Segoe UI',sans-serif}
-.sheet table.doc th,.sheet table.doc td{border:1px solid #94a3b8;padding:4pt 6pt;vertical-align:top;text-align:left}
-.sheet table.doc th{background:#e2e8f0}
+.sheet table.doc th,.sheet table.doc td{border:1px solid var(--doc-blue-bd);padding:4pt 6pt;vertical-align:top;text-align:left}
+.sheet table.doc th{background:var(--doc-blue-lt);color:var(--doc-blue-dk)}
 .sheet table.doc ul{padding-left:14pt;margin:0}
 .sheet .lu-block{break-inside:avoid;page-break-inside:avoid;margin:9pt 0 13pt}
 .sheet .lu-h{font-weight:700;font-size:11.5pt;margin-bottom:3pt;font-family:'Segoe UI',sans-serif}
 .sheet .tagline{font-size:9pt;color:#475569;font-family:'Segoe UI',sans-serif}
 .sheet .cls-sec{page-break-before:always}
 .sheet small.src{color:#64748b;font-style:italic;font-size:9pt}
+.sheet .cover-page{min-height:250mm;display:flex;flex-direction:column;align-items:center;text-align:center;page-break-after:always;font-family:'Segoe UI',sans-serif}
+.sheet .cover-block{margin-top:75mm}
+.sheet .cov-title{font-size:20pt;font-weight:700;color:var(--doc-blue-dk);margin:0 0 6pt;letter-spacing:.3px}
+.sheet .cov-sub{font-size:13pt;font-weight:700;margin:0 0 6pt;color:#111}
+.sheet .cov-disc{font-size:16pt;font-weight:700;color:var(--doc-blue-dk);margin:0 0 16pt}
+.sheet .cov-levels{font-style:italic;font-size:12pt;margin:0 0 20pt}
+.sheet .cov-draft{font-weight:700;font-size:12pt}
+.sheet .cov-place{margin-top:auto;padding-bottom:8mm;font-size:11pt}
+.sheet .credits-page{page-break-after:always;font-family:'Segoe UI',sans-serif;font-size:10.5pt}
+.sheet .credits-page p{text-align:justify;margin:0 0 12pt}
+.sheet .credits-page h4{font-size:11pt;margin:14pt 0 5pt;color:var(--doc-blue-dk)}
+.sheet .credits-page ul{margin:0 0 8pt;padding-left:16pt}
+.sheet .toc-page{page-break-after:always}
+.sheet .toc-page ul{list-style:none;padding-left:0;margin:0}
+.sheet .toc-page li{margin:0 0 6pt}
+.sheet .toc-page li.toc-sub{padding-left:16pt;font-size:10pt}
+.sheet .toc-page a{color:var(--doc-blue-md);text-decoration:none;cursor:pointer}
+.sheet .toc-page a:hover{text-decoration:underline}
 @media print{
   header,.doc-tools,#overlay,#panel{display:none !important}
   .view{display:none !important}
@@ -179,7 +198,7 @@ td.code{font-family:ui-monospace,monospace;font-size:11px;white-space:nowrap}
 <div id="overlay"></div>
 <aside id="panel"></aside>
 
-<script src="data.js?v=10"></script>
+<script src="data.js?v=12"></script>
 <script>
 const ROMAN={1:'I',2:'II',3:'III',4:'IV',5:'V',6:'VI',7:'VII',8:'VIII',9:'IX'};
 const C=CURRICULUM, UCOMP=C.ucomp, UCON=C.ucon;
@@ -446,7 +465,9 @@ function openPanel(cod){
      <div class="hint">${l.comp==='T'?'Modul opțional '+l.ord:'Scenariu '+l.ord} · ${l.ucon.length} lecții · ${l.ucomp.length} unități de competență</div>
    </div>
    <div class="p-body">
-     ${l.valori&&l.valori.length?`<div class="sec"><h3>Valori promovate</h3>${chipset(l.valori,'valori')}</div>`:''}
+     ${l.valori&&l.valori.length?(()=>{const withDesc=(l.valori_detaliu||[]).filter(v=>v.descriere);
+        const list=withDesc.length?`<ul style="margin:6px 0 0;padding-left:18px">${withDesc.map(v=>`<li style="margin-bottom:4px;font-size:12.5px"><b>${esc(v.nume)}</b> – prin ${esc(v.descriere)}</li>`).join('')}</ul>`:'';
+        return `<div class="sec"><h3>Valori promovate</h3>${chipset(l.valori,'valori')}${list}</div>`})():''}
      <div class="sec"><h3>Unități de competență</h3>${ucHtml}</div>
      <div class="sec"><h3>Unități de conținut (lecții)</h3>${uconList||'—'}<div class="hint" style="margin-top:6px">Fiecare lecție arată competențele pe care le dezvoltă (tag-uri). Hover = descriere.</div></div>
      ${rezList?`<div class="sec"><h3>Rezultate ale învățării</h3><div class="hint" style="margin-bottom:6px">Elevul/eleva:</div>${rezList}</div>`:''}
@@ -645,6 +666,76 @@ function progFocus(kind,id){
 
 /* ---------- DOCUMENT (A4, conform Metodologiei) ---------- */
 function setDocClass(v){state.docClass=v;renderDoc();}
+function scrollToSec(id){const t=document.getElementById(id);if(t)t.scrollIntoView({behavior:'smooth',block:'start'})}
+// pagina de titlu (fixă, conform machetei oficiale)
+function coverPageHtml(){
+  return `<div class="cover-page">
+    <div class="cover-block">
+      <div class="cov-title">CURRICULUMUL</div>
+      <div class="cov-sub">disciplinei școlare</div>
+      <div class="cov-disc">EDUCAȚIE TEHNOLOGICĂ și TIC</div>
+      <div class="cov-levels">Niveluri de studii: primar, gimnazial</div>
+      <div class="cov-draft">DRAFT</div>
+    </div>
+    <div class="cov-place">Chișinău, 2026</div>
+  </div>`;
+}
+// pagina de credite (fixă, conform machetei oficiale)
+function creditsPageHtml(){
+  return `<div class="credits-page">
+    <p>Curriculumul disciplinei școlare <em>Educația tehnologică și TIC</em> este elaborată conform Ordinului Ministrului nr. 2085/2025 „Cu privire la dezvoltarea curriculară la disciplinele școlare din învățământul general”.</p>
+    <h4>Coordonatori, Ministerul Educației și Cercetării:</h4>
+    <ul>
+      <li>Valentina OLARU, Secretară de Stat, doctor în pedagogie.</li>
+      <li>Corina LUNGU, șefa Direcției politici în învățământul general.</li>
+      <li>Lilia CÎRLAN, consultant principal, Direcția politici în învățământul general.</li>
+    </ul>
+    <h4>Expert național:</h4>
+    <ul><li>Anatol GREMALSCHI, doctor habilitat, profesor universitar.</li></ul>
+    <h4>Grupul de lucru:</h4>
+    <ul>
+      <li><b>Ala VITCOVSCHII</b>, coordonator pe disciplină, dr., conf.univ., UPS „Ion Creangă”.</li>
+      <li><b>Daniela HOLBAN</b>, expert curricular, profesor școlar, Liceul Teoretic „Gaudeamus”, mun. Chișinău.</li>
+      <li><b>Tudor LAPP</b>, expert curricular, formator, Clasa Viitorului.</li>
+      <li><b>Alexandru LEAHU</b>, expert curricular, formator, Clasa Viitorului.</li>
+      <li><b>Viorica OBOROCEANU</b>, expert curricular, dr., UPS „Ion Creangă”, Liceul Teoretic „M. Cervantes Saavedra”.</li>
+      <li><b>Alexandru OBADĂ</b>, expert curricular, profesor școlar, Clasa Viitorului.</li>
+      <li><b>Elena SAVIN</b>, expert curricular, învățător, Liceul Teoretic „Onisifor Ghibu”, mun. Chișinău.</li>
+    </ul>
+  </div>`;
+}
+// matricea de repartizare a modulelor pe clase (calculată din LU.T reale + Educație digitală, obligatorie)
+function moduleMatrixHtml(){
+  const ORDER_T=['Colaje și decorațiuni','Modelarea artistică','Reciclare creativă','Creații din fibre',
+    'Activități agricole - Agricultura organică','Arta culinară și sănătatea','Meșteșuguri populare și moderne',
+    'Design și creație aplicată','Designul spațiilor verzi','Limbaj grafic','Design vestimentar','Design de interior',
+    'Tehnologii ale vieții și mediului'];
+  const ORDER_TIC=['Robotica','Modelare și imprimare 3D','Pilotarea și programarea dronelor'];
+  const classesOf=title=>{const s=new Set(); C.lu.forEach(l=>{if(l.comp==='T'&&l.cod!=='LU.T.5.B'&&l.title===title.toUpperCase())s.add(l.clasa)}); return s};
+  let rows='';
+  const rowHtml=(label,setOrSpecial)=>{
+    let cells='';
+    for(let c=1;c<=9;c++){
+      const mark=setOrSpecial==='ALL'?'':(setOrSpecial.has(c)?'x':'');
+      cells+=`<td style="text-align:center">${mark}</td>`;
+    }
+    return `<tr><td>${esc(label)}</td>${cells}</tr>`;
+  };
+  ORDER_T.forEach(t=>{const s=classesOf(t); if(s.size) rows+=rowHtml(t,s)});
+  let ticRows=`<tr><td>Educație digitală<span class="tagline"> (D)</span></td><td colspan="9" style="text-align:center;font-weight:700">Obligatoriu</td></tr>`;
+  ORDER_TIC.forEach(t=>{const s=classesOf(t); if(s.size) ticRows+=rowHtml(t,s)});
+  let head='<tr><th>Module</th>';
+  for(let c=1;c<=9;c++) head+=`<th style="text-align:center">${ROMAN[c]}</th>`;
+  head+='</tr>';
+  return `<h3 style="text-align:center">Repartizarea modulelor pe clase*</h3>
+    <table class="doc"><thead>${head}</thead><tbody>
+      <tr><td colspan="10" style="background:var(--doc-blue-lt);font-weight:700">Educație tehnologică</td></tr>
+      ${rows}
+      <tr><td colspan="10" style="background:var(--doc-blue-lt);font-weight:700">TIC</td></tr>
+      ${ticRows}
+    </tbody></table>
+    <p><small class="src">* Fiecare instituție selectează, pentru fiecare clasă, numărul de module necesar pentru cele 34 de ore anuale (Educație digitală este obligatorie pe tot parcursul I–IX).</small></p>`;
+}
 function renderDoc(){
   const el=document.getElementById('docview');
   const sel=state.docClass||'all';
@@ -653,26 +744,43 @@ function renderDoc(){
   const letters=['a','b','c','d','e','f'];
   // a, b — secțiuni narative din notițe (document/)
   let narr='';
-  (C.doc||[]).forEach((s,i)=>{narr+=`<h2>${letters[i]}) ${esc(s.title)}</h2>${s.html}`});
-  // c — administrarea disciplinei
-  let admin=`<h2>c) Administrarea disciplinei</h2><table class="doc"><thead><tr><th>Clasa</th><th>Unități de învățare</th><th>Unități de conținut (lecții)</th><th>Ore estimate*</th></tr></thead><tbody>`;
-  let tLU=0,tUC=0;
-  for(let c=1;c<=9;c++){const ls=C.lu.filter(l=>l.clasa===c&&state.comp[l.comp]);const n=ls.reduce((s,l)=>s+l.ucon.length,0);tLU+=ls.length;tUC+=n;admin+=`<tr><td>${ROMAN[c]}</td><td style="text-align:center">${ls.length}</td><td style="text-align:center">${n}</td><td style="text-align:center">${n}</td></tr>`}
-  admin+=`<tr><th>Total</th><th style="text-align:center">${tLU}</th><th style="text-align:center">${tUC}</th><th style="text-align:center">${tUC}</th></tr></tbody></table><p><small class="src">* O unitate de conținut ≈ o oră de curs. Disciplina are structură modulară: la fiecare clasă școala selectează module/scenarii din oferta de mai jos.</small></p>`;
+  (C.doc||[]).forEach((s,i)=>{narr+=`<h2 id="sec-${letters[i]}">${letters[i]}) ${esc(s.title)}</h2>${s.html}`});
+  // c — administrarea disciplinei: numere FIXE conform Planului-cadru (1 oră/săptămână, 34 ore/an,
+  // 4 unități de învățare recomandate), nu suma tuturor modulelor din ofertă (acelea sunt opționale,
+  // școala alege câte încap în cele 34 de ore) + matricea de repartizare a modulelor pe clase.
+  const hourRow=c=>`<tr><td>Educație tehnologică și TIC</td><td>Tehnologii</td><td>Obligatorie</td><td style="text-align:center">${ROMAN[c]}</td><td style="text-align:center">1</td><td style="text-align:center">34</td><td style="text-align:center">4</td></tr>`;
+  let admin=`<h2 id="sec-c">c) Administrarea disciplinei</h2>
+    <table class="doc"><thead><tr><th>Disciplina</th><th>Aria curriculară</th><th>Statut</th><th>Clasa</th><th>Nr. ore/săptămână</th><th>Nr. ore anual</th><th>Nr. unități de învățare*</th></tr></thead>
+    <tbody>
+      <tr><td colspan="7" style="background:var(--doc-blue-lt);font-weight:700;text-align:center">Nivel primar</td></tr>
+      ${[1,2,3,4].map(hourRow).join('')}
+      <tr><td colspan="7" style="background:var(--doc-blue-lt);font-weight:700;text-align:center">Nivel gimnazial</td></tr>
+      ${[5,6,7,8,9].map(hourRow).join('')}
+    </tbody></table>
+    <p><small class="src">* Numărul unităților de învățare recomandat pentru un modul.</small></p>
+    ${moduleMatrixHtml()}`;
   // d — competențe specifice
-  let csb='<h2>d) Competențe specifice</h2><ol>';
+  let csb='<h2 id="sec-d">d) Competențe specifice</h2><ol>';
   C.cs.forEach(c=>csb+=`<li><strong>${esc(c.cod)}.</strong> ${esc(c.enunt)}</li>`);
   csb+='</ol>';
   // e — unități de învățare pe clase (conform Șablonului oficial: tabel 3 coloane)
-  let eb='<h2>e) Unități de învățare pe clase</h2>';
+  let eb='<h2 id="sec-e">e) Unități de învățare pe clase</h2>';
+  const tocClassesE=[];
   classes.forEach(c=>{
     const ls=luOf(c); if(!ls.length)return;
-    eb+=`<div class="cls-sec"><h3>Clasa ${ROMAN[c]}</h3>`;
+    tocClassesE.push(c);
+    eb+=`<div class="cls-sec"><h3 id="sec-e-${c}">Clasa ${ROMAN[c]}</h3>`;
     eb+=`<table class="doc"><thead><tr><th style="width:28%">Unități de competență</th><th style="width:44%">Unități de conținut</th><th style="width:28%">Rezultatele învățării</th></tr></thead><tbody>`;
     ls.forEach(l=>{
       const nOre=l.ucon?l.ucon.length:'';
       // header row: LU title + ore + valori
-      const valStr=l.valori&&l.valori.length? '<br><b>Valori promovate:</b> '+l.valori.map(esc).join('; '):'';
+      // Valori promovate: linia compactă (nume) + lista cu marcatori + manifestarea specifică LU (dacă e scrisă)
+      let valStr='';
+      if(l.valori&&l.valori.length){
+        valStr='<br><b>Valori promovate:</b> '+l.valori.map(esc).join(', ')+';';
+        const withDesc=(l.valori_detaliu||[]).filter(v=>v.descriere);
+        if(withDesc.length) valStr+='<ul style="margin:3pt 0 0">'+withDesc.map(v=>`<li><b>${esc(v.nume)}</b> – prin ${esc(v.descriere)}</li>`).join('')+'</ul>';
+      }
       eb+=`<tr><td colspan="3" style="background:#f1f5f9;font-weight:700;font-size:10.5pt">${esc(l.title)} <span class="tagline">[${l.cod}] — ${nOre} ore</span>${valStr}</td></tr>`;
       // UC column
       const ucHtml=l.ucomp.map(u=>{const d=UCOMP[u];return `<b>${u.replace('UComp.','')}</b> ${esc(d?d.desc:'')}`}).join('<br><br>');
@@ -696,15 +804,27 @@ function renderDoc(){
     eb+=`</tbody></table></div>`;
   });
   // f — finalitățile învățării pe clase (din unitățile de competență ale anului)
-  let fb='<h2>f) Finalitățile învățării pe clase</h2><p><small class="src">Rezultatele globale ale învățării la finalul fiecărei clase, exprimate prin unitățile de competență formate în anul respectiv.</small></p>';
+  let fb='<h2 id="sec-f">f) Finalitățile învățării pe clase</h2><p><small class="src">Rezultatele globale ale învățării la finalul fiecărei clase, exprimate prin unitățile de competență formate în anul respectiv.</small></p>';
+  const tocClassesF=[];
   classes.forEach(c=>{
     const ucs=Object.values(UCOMP).filter(u=>+u.cod.split('.')[3]===c);
     if(!ucs.length)return;
-    fb+=`<div class="cls-sec"><h3>Clasa ${ROMAN[c]}</h3>`;
+    tocClassesF.push(c);
+    fb+=`<div class="cls-sec"><h3 id="sec-f-${c}">Clasa ${ROMAN[c]}</h3>`;
     [1,2,3,4].forEach(cs=>{const g=ucs.filter(u=>+u.cs===cs);if(!g.length)return;
       fb+=`<p><b>CS${cs}</b></p><ul>${g.sort((a,b)=>a.cod.localeCompare(b.cod,undefined,{numeric:true})).map(u=>`<li>${esc(u.desc)}</li>`).join('')}</ul>`});
     fb+='</div>';
   });
+  // Cuprins — dinamic: reflectă exact secțiunile/clasele randate mai sus pentru filtrul curent
+  let toc='<h2 id="sec-toc">Cuprins</h2><div class="toc-page"><ul>';
+  (C.doc||[]).forEach((s,i)=>{toc+=`<li><a onclick="scrollToSec('sec-${letters[i]}')">${letters[i]}) ${esc(s.title)}</a></li>`});
+  toc+=`<li><a onclick="scrollToSec('sec-c')">c) Administrarea disciplinei</a></li>`;
+  toc+=`<li><a onclick="scrollToSec('sec-d')">d) Competențe specifice</a></li>`;
+  toc+=`<li><a onclick="scrollToSec('sec-e')">e) Unități de învățare pe clase</a></li>`;
+  tocClassesE.forEach(c=>toc+=`<li class="toc-sub"><a onclick="scrollToSec('sec-e-${c}')">Clasa ${ROMAN[c]}</a></li>`);
+  toc+=`<li><a onclick="scrollToSec('sec-f')">f) Finalitățile învățării pe clase</a></li>`;
+  tocClassesF.forEach(c=>toc+=`<li class="toc-sub"><a onclick="scrollToSec('sec-f-${c}')">Clasa ${ROMAN[c]}</a></li>`);
+  toc+='</ul></div>';
   let opts='<option value="all">Toate clasele (integral)</option>';
   for(let c=1;c<=9;c++)opts+=`<option value="${c}" ${sel===String(c)?'selected':''}>Clasa ${ROMAN[c]}</option>`;
   el.innerHTML=`<div class="doc-tools">
@@ -714,8 +834,8 @@ function renderDoc(){
      <label>Conținut: <select onchange="setDocClass(this.value)">${opts}</select></label>
      <span class="meta">A4 · structură conform Metodologiei de dezvoltare a curriculumului</span></div>
    <div class="doc-scroll"><div class="sheet">
-     <h1 class="doc-title">CURRICULUM</h1>
-     <p class="doc-sub">Educație tehnologică și TIC · învățământ primar și gimnazial · clasele I–IX<br>${sel==='all'?'document integral':'Clasa '+ROMAN[+sel]}</p>
+     ${coverPageHtml()}${creditsPageHtml()}${toc}
+     <p class="doc-sub">${sel==='all'?'Document integral':'Clasa '+ROMAN[+sel]}</p>
      ${narr}${admin}${csb}${eb}${fb}
    </div></div>`;
 }
